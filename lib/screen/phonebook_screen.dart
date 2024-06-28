@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kaist_summer_camp/component/contact_recentcall_component.dart';
 import 'package:kaist_summer_camp/component/contact_scroll_component.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -128,44 +129,30 @@ class _PhoneBookScreenState extends State<PhoneBookScreen> {
                               hintText: _focusNode.hasFocus ? null : 'Search',
                               hintStyle: TextStyle(color: Colors.grey.shade700),
                               filled: true,
-                              fillColor: Colors.grey.shade300,
+                              fillColor: Colors.grey.withOpacity(0.15),
                               contentPadding:
                                   EdgeInsets.symmetric(horizontal: 16.0),
                               prefixIcon: _focusNode.hasFocus
                                   ? null
                                   : Icon(Icons.search,
-                                      color: Colors.grey.shade700),
+                                      color: Colors.grey.shade500),
                               border: OutlineInputBorder(
                                 borderSide: BorderSide.none,
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
                             ),
-                            style: TextStyle(color: Colors.grey.shade800),
+                            style: TextStyle(color: Colors.grey.shade500),
                           ),
                         ),
                       ),
-                      SliverToBoxAdapter(child: _HorizentalContactsView(context)),
-                    ];
+                      SliverToBoxAdapter(
+                          child: HorizontalContactsView(contacts: contacts),
+                      )];
                   },
                   body: ContactScrollComponent(contactsToShow: contacts),
                 );
               }
             }),
-      ),
-    );
-  }
-
-  Widget _HorizentalContactsView(BuildContext context) {
-    // 가장 최근에 사용한 연락처에 대해, 가로로 스크롤 가능한 리스트뷰를 생성
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.2,
-      child: ListView.builder(
-        itemBuilder: (_, index) => Container(
-          width: 1,
-          height: 1,
-        ),
-        scrollDirection: Axis.horizontal,
-        itemCount: 10,
       ),
     );
   }

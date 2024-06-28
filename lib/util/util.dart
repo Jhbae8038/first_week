@@ -1,4 +1,5 @@
 // Import package
+import 'package:call_log/call_log.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'dart:typed_data';
 
@@ -73,6 +74,43 @@ class Util {
     } catch (e) {
       throw Exception('Failed to add contact: $e');
     }
+  }
+
+  static Future<List<ContactModel>> getRecentCallContacts(List<ContactModel> allContacts) async {
+    List<CallLogEntry> _callLogs = [];
+
+    if (await Permission.phone.request().isGranted &&
+        await Permission.contacts.request().isGranted) {
+      Iterable<CallLogEntry> entries = await CallLog.get();
+
+      _callLogs = entries.toList();
+    } else {
+      // 권한이 거부된 경우 처리
+      throw Exception('CallLog permission not granted');
+    }
+
+    List<ContactModel> recentCallContacts = [];
+    int i = 0;
+
+    for (CallLogEntry callLog in _callLogs) {
+      if (i>4) {
+        break;
+      }
+
+      if (callLog.name != null && callLog.name!.isNotEmpty) {
+        if (recentCallContacts.any((contact) => contact.name == callLog.name)) continue;
+        recentCallContacts.add(allContacts.firstWhere((contact) => contact.name == callLog.name));
+        recentCallContacts.last.timeSinceLastCall = DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(callLog.timestamp!));
+        i++;
+      }
+    }
+
+    recentCallContacts.addAll(allContacts.take(5 - recentCallContacts.length));
+    for(ContactModel contact in recentCallContacts) {
+      contact.timeSinceLastCall ??= Duration(days: 365);
+    }
+
+    return recentCallContacts;
   }
 }
 

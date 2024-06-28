@@ -5,8 +5,9 @@ class ContactModel{
   String phone;
   String? email;
   Uint8List? image;
+  Duration? timeSinceLastCall;
 
-  ContactModel({required this.name, required this.phone, this.email, this.image});
+  ContactModel({required this.name, required this.phone, this.email, this.image, this.timeSinceLastCall});
 
   factory ContactModel.fromJson(Map<String, dynamic> json){
     return ContactModel(
