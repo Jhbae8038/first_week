@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kaist_summer_camp/component/contact_scroll_component.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../model/contact_model.dart';
@@ -21,9 +22,9 @@ class _PhoneBookScreenState extends State<PhoneBookScreen> {
   void initState() {
     super.initState();
     contactList = Util.getContactInfoFromPhoneContact();
-    _focusNode.addListener(() {setState(() {
-
-    });});
+    _focusNode.addListener(() {
+      setState(() {});
+    });
     _scrollController.addListener(() {
       if (_focusNode.hasFocus) {
         _focusNode.unfocus();
@@ -38,8 +39,7 @@ class _PhoneBookScreenState extends State<PhoneBookScreen> {
     _scrollController.dispose();
     super.dispose();
   }
-  
-  
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -60,8 +60,10 @@ class _PhoneBookScreenState extends State<PhoneBookScreen> {
             padding: EdgeInsets.only(left: 8.0, top: 4.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12.0), // 둥근 모서리의 정도를 조정
-              child:
-                  Image.asset('asset/default_profile.png', fit: BoxFit.scaleDown),
+              child: Image.asset(
+                'asset/default_profile.png',
+                fit: BoxFit.contain,
+              ),
             ),
           ),
           actions: [
@@ -105,54 +107,65 @@ class _PhoneBookScreenState extends State<PhoneBookScreen> {
                 // 데이터가 로드되었을 때 표시할 위젯
                 List<ContactModel> contacts = snapshot.data!;
 
-                return SingleChildScrollView(
+                return NestedScrollView(
                   physics: BouncingScrollPhysics(),
-                    controller: _scrollController,
-                    child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: TextField(
-                        focusNode: _focusNode,
-                        onChanged: (text) {
-                          setState(() {
-                            _searchText = text;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          hintText: _focusNode.hasFocus ? null : 'Search',
-                          hintStyle: TextStyle(color: Colors.grey.shade700),
-                          filled: true,
-                          fillColor: Colors.grey.shade300,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16.0),
-                          prefixIcon: _focusNode.hasFocus
-                              ? null
-                              : Icon(Icons.search, color: Colors.grey.shade700),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(8.0),
+                  controller: _scrollController,
+                  headerSliverBuilder:
+                      (BuildContext context, bool innerBoxIsScrolled) {
+                    return [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 16.0),
+                          child: TextField(
+                            focusNode: _focusNode,
+                            onChanged: (text) {
+                              setState(() {
+                                _searchText = text;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: _focusNode.hasFocus ? null : 'Search',
+                              hintStyle: TextStyle(color: Colors.grey.shade700),
+                              filled: true,
+                              fillColor: Colors.grey.shade300,
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 16.0),
+                              prefixIcon: _focusNode.hasFocus
+                                  ? null
+                                  : Icon(Icons.search,
+                                      color: Colors.grey.shade700),
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                            ),
+                            style: TextStyle(color: Colors.grey.shade800),
                           ),
                         ),
-                        style: TextStyle(color: Colors.grey.shade800),
                       ),
-                    ),
-                    ...List.generate(contacts.length, (index) {
-                      final contact = contacts[index];
-                      return ListTile(
-                          onTap: () {},
-                          title: Text(contact.name),
-                          subtitle: Text(
-                              contact.phone != '' ? contact.phone : 'No Phone'));
-                    }),
-                    ListTile(
-                      leading: Icon(Icons.add),
-                      onTap: () {},
-                      title: Text('Add Contract'),
-                    )
-                  ],
-                ));
+                      SliverToBoxAdapter(child: _HorizentalContactsView(context)),
+                    ];
+                  },
+                  body: ContactScrollComponent(contactsToShow: contacts),
+                );
               }
             }),
+      ),
+    );
+  }
+
+  Widget _HorizentalContactsView(BuildContext context) {
+    // 가장 최근에 사용한 연락처에 대해, 가로로 스크롤 가능한 리스트뷰를 생성
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.2,
+      child: ListView.builder(
+        itemBuilder: (_, index) => Container(
+          width: 1,
+          height: 1,
+        ),
+        scrollDirection: Axis.horizontal,
+        itemCount: 10,
       ),
     );
   }
