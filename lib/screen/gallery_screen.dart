@@ -148,7 +148,7 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
                     TextButton(
                       onPressed: () {
                         ref.read(imageProvider.notifier).removeFileIndex(index);
-                        Navigator.pop(context);
+                        setState(() {Navigator.pop(context);});
                       },
                       child: Text('삭제'),
                     ),
