@@ -1,5 +1,6 @@
 //gallery_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -7,16 +8,17 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
-class GalleryScreen extends StatefulWidget {
+import '../provider/gallery_image_provider.dart';
+
+
+class GalleryScreen extends ConsumerStatefulWidget {
   const GalleryScreen({Key? key}) : super(key: key);
 
   @override
-  State<GalleryScreen> createState() => _GalleryScreenState();
+  ConsumerState<GalleryScreen> createState() => _GalleryScreenState();
 }
 
-class _GalleryScreenState extends State<GalleryScreen> {
-  List<File> _images = []; //이미지 파일을 저장할 리스트
-  final ImagePicker _picker = ImagePicker();//이미지 피커
+class _GalleryScreenState extends ConsumerState<GalleryScreen> {
   int _currentIndex = 0;//현재 이미지의 인덱스
   PageController _pageController= PageController();//페이지 컨트롤러(이미지 슬라이드)
   final PageStorageKey _pageStorageKey = PageStorageKey('gallery_key');//페이지 저장 키
@@ -54,30 +56,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
     }
   }
 
-  Future<void> _pickMultiImage() async {//갤러리에서 이미지를 여러개 선택하는 함수
-    final pickedFileList = await _picker.pickMultiImage();
-    if (pickedFileList != null) {
-      setState(() {
-        _images.addAll(pickedFileList.map((e) => File(e.path)).toList());//선택한 이미지들을 리스트에 추가
-      });
-    }
-  }
-
-  void _deleteImage(int index) {//이미지 삭제 함수
-    setState(() {
-      _images.removeAt(index);
-    });
-  }
-
-  Future<void> _pickcameraimage(ImageSource source) async{ //카메라에서 이미지를 선택하는 함수
-    final image = await _picker.pickImage(source: source);
-    if (image != null) {
-      setState(() {
-        _images.add(File(image.path));
-      });
-    }
-  }
-
 
   @override
   void dispose() {
@@ -87,23 +65,28 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   @override
   Widget build(BuildContext context) {//화면 구성
+    final List<File> images = ref.watch(imageProvider);//이미지 리스트
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Gallery'),
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: _pickMultiImage,
+            onPressed: () async {
+              await ref.read(imageProvider.notifier).addMultiImage();//이미지 추가
+              setState(() {});
+            },
           ),
           IconButton(
             icon: Icon(Icons.camera_alt),
             onPressed: () {
-              _pickcameraimage(ImageSource.camera);
+              ref.read(imageProvider.notifier).addFile();//카메라로 이미지 추가
             },
           ),
         ],
       ),
-      body: _images.isEmpty//이미지가 없을 경우
+      body: images.isEmpty//이미지가 없을 경우
           ? Center(child: Text('No images selected.'))
           : GridView.builder(//이미지가 있을 경우
         key: _pageStorageKey,
@@ -112,7 +95,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           crossAxisSpacing: 4.0,
           mainAxisSpacing: 4.0,//이미지 간 간격
         ),
-        itemCount: _images.length,//이미지 개수
+        itemCount: images.length,//이미지 개수
         itemBuilder: (context, index) {//이미지 빌더
           return GestureDetector(//이미지 클릭 시 확대
             onTap: () {
@@ -126,10 +109,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         color: Colors.black,
                       ),
                       child: PhotoViewGallery.builder(
-                        itemCount: _images.length,
+                        itemCount: images.length,
                         builder: (context, i) {
                           return PhotoViewGalleryPageOptions(
-                            imageProvider: FileImage(_images[i]),
+                            imageProvider: FileImage(images[i]),
                             minScale: PhotoViewComputedScale.contained,
                             maxScale: PhotoViewComputedScale.covered * 2.0,
                             initialScale: PhotoViewComputedScale.contained,
@@ -164,7 +147,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                        _deleteImage(index);//이미지 삭제
+                        ref.read(imageProvider.notifier).removeFileIndex(index);
                         Navigator.pop(context);
                       },
                       child: Text('삭제'),
@@ -173,7 +156,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 ),
               );
             },
-            child: Image.file(_images[index], fit: BoxFit.cover),
+            child: Image.file(images[index], fit: BoxFit.cover),
           );
         },
       ),
