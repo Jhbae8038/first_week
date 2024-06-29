@@ -11,17 +11,20 @@ class ContactDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          _Top(context),
-          SizedBox(height: 8.0),
-          Container(
-            width: double.infinity,
-            height: 24.0,
-            color: SILVERCOLOR,
-          ),
-          _Bottom(context),
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _Top(context),
+            SizedBox(height: 8.0),
+            Container(
+              width: double.infinity,
+              height: 24.0,
+              color: SILVERCOLOR,
+            ),
+            _Bottom(context),
+            SizedBox(height: 16.0)
+          ],
+        ),
       ),
     );
   }
