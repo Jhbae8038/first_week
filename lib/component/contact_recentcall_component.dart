@@ -80,7 +80,8 @@ class _HorizontalContactsViewState extends State<HorizontalContactsView> {
                       Text(
                         recentContacts[index].timeSinceLastCall!.inMinutes < 60
                             ? '${recentContacts[index].timeSinceLastCall!.inMinutes} minutes ago'
-                            : '${recentContacts[index].timeSinceLastCall!.inHours} hours ago',
+                            : recentContacts[index].timeSinceLastCall!.inHours < 24 ? '${recentContacts[index].timeSinceLastCall!.inHours} hours ago'
+                            : '${recentContacts[index].timeSinceLastCall!.inDays} days ago',
                         style: TextStyle(
                           fontSize: 12.0,
                           color: Colors.black,
