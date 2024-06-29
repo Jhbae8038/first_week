@@ -1,13 +1,16 @@
 import 'dart:typed_data';
 
+import 'package:contacts_service/contacts_service.dart';
+
 class ContactModel{
   String name;
   String phone;
+  String? homeNumber;
   String? email;
   Uint8List? image;
   Duration? timeSinceLastCall;
 
-  ContactModel({required this.name, required this.phone, this.email, this.image, this.timeSinceLastCall});
+  ContactModel({required this.name, required this.phone,this.homeNumber ,this.email, this.image, this.timeSinceLastCall});
 
   factory ContactModel.fromJson(Map<String, dynamic> json){
     return ContactModel(

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:kaist_summer_camp/const/const.dart';
 import 'package:kaist_summer_camp/model/contact_model.dart';
+import 'package:kaist_summer_camp/util/util.dart';
 
 List<ContactModel> sortContacts(List<ContactModel> contacts) {
   contacts.sort((a, b) {
@@ -45,10 +47,14 @@ bool _isDigit(String text) {
   return RegExp(r'^\d').hasMatch(text);
 }
 
+typedef OnContactTap = void Function(ContactModel contact);
+
 class ContactScrollComponent extends StatefulWidget {
   final List<ContactModel> contactsToShow;
+  final OnContactTap onContactTap;
 
-  const ContactScrollComponent({required this.contactsToShow, super.key});
+  const ContactScrollComponent(
+      {required this.contactsToShow, required this.onContactTap, super.key});
 
   @override
   State<ContactScrollComponent> createState() => _ContactScrollComponentState();
@@ -82,7 +88,7 @@ class _ContactScrollComponentState extends State<ContactScrollComponent> {
             children: [
               Container(
                 height: 24.0,
-                color: Colors.grey.shade100,
+                color: SILVERCOLOR,
                 padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -102,7 +108,7 @@ class _ContactScrollComponentState extends State<ContactScrollComponent> {
             children: [
               Container(
                 height: 24.0,
-                color: Colors.grey.shade100,
+                color: SILVERCOLOR,
                 padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -138,10 +144,13 @@ class _ContactScrollComponentState extends State<ContactScrollComponent> {
       ),
       confirmDismiss: (_) async {
         // 전화 걸기 기능
+        Util.makePhoneCall(contact.phone);
         return false;
       },
       child: ListTile(
-        onTap: () {},
+        onTap: () {
+          widget.onContactTap(contact);
+        },
         leading: ClipRRect(
           borderRadius: BorderRadius.circular(8.0), // 둥근 모서리 설정
           child: Container(
@@ -150,17 +159,20 @@ class _ContactScrollComponentState extends State<ContactScrollComponent> {
             color: Colors.grey.shade300,
             child: contact.image != null && contact.image!.isNotEmpty
                 ? Image.memory(
-              contact.image!,
-              fit: BoxFit.cover,
-            )
+                    contact.image!,
+                    fit: BoxFit.cover,
+                  )
                 : Image.asset(
-              'asset/default_profile.png',
-              fit: BoxFit.cover,
-            ),
+                    'asset/default_profile.png',
+                    fit: BoxFit.cover,
+                  ),
           ),
         ),
         title: Text(contact.name),
-        subtitle: Text(contact.phone != '' ? contact.phone : 'No Phone', style: TextStyle(color: Colors.grey.shade700),),
+        subtitle: Text(
+          contact.phone != '' ? contact.phone : 'No Phone',
+          style: TextStyle(color: Colors.grey.shade700),
+        ),
       ),
     );
   }

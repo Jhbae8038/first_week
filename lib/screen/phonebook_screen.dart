@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kaist_summer_camp/component/contact_recentcall_component.dart';
 import 'package:kaist_summer_camp/component/contact_scroll_component.dart';
+import 'package:kaist_summer_camp/screen/contact_detail_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../model/contact_model.dart';
@@ -146,14 +147,30 @@ class _PhoneBookScreenState extends State<PhoneBookScreen> {
                         ),
                       ),
                       SliverToBoxAdapter(
-                          child: HorizontalContactsView(contacts: contacts),
-                      )];
+                          child: HorizontalContactsView(contacts: contacts, onContactTap: _onTapContact)),
+                      ];
                   },
-                  body: ContactScrollComponent(contactsToShow: contacts),
+                  body: ContactScrollComponent(contactsToShow: queryContacts(contacts), onContactTap: _onTapContact),
                 );
               }
             }),
       ),
     );
+  }
+  
+  List<ContactModel> queryContacts(List<ContactModel> contacts) {
+    if (_searchText.isEmpty || _searchText.trim() == '') {
+      return contacts;
+    }
+
+    return contacts
+        .where((contact) => contact.name.toLowerCase().contains(_searchText.toLowerCase()))
+        .toList();
+  }
+
+  void _onTapContact(ContactModel contact) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => ContactDetailScreen(contact: contact),
+    ));
   }
 }

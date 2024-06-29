@@ -3,10 +3,13 @@ import 'package:kaist_summer_camp/util/util.dart';
 
 import '../model/contact_model.dart';
 
+typedef OnContactTap = void Function(ContactModel contact);
+
 class HorizontalContactsView extends StatefulWidget {
   final List<ContactModel> contacts;
+  final OnContactTap onContactTap;
 
-  const HorizontalContactsView({required this.contacts,super.key});
+  const HorizontalContactsView({required this.contacts, required this.onContactTap,super.key});
 
   @override
   State<HorizontalContactsView> createState() => _HorizontalContactsViewState();
@@ -49,7 +52,9 @@ class _HorizontalContactsViewState extends State<HorizontalContactsView> {
                 child: InkWell(
                   radius: 50.0,
                   borderRadius: BorderRadius.circular(24.0),
-                  onTap: (){},
+                  onTap: (){
+                    widget.onContactTap(recentContacts[index]);
+                  },
                   child: Column(
                     children: [
                       Container(

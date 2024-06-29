@@ -3,6 +3,8 @@ import 'package:kaist_summer_camp/homescreen.dart';
 import 'package:kaist_summer_camp/screen/phonebook_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   runApp(const MyApp());
 }
 
