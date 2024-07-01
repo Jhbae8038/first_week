@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+
 
 import '../provider/gallery_image_provider.dart';
 
@@ -26,37 +26,9 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
   @override
   void initState() {
     super.initState();
-    _requestPermission();//권한 요청
     _pageController = PageController(initialPage: _currentIndex);//페이지 컨트롤러 초기화
     //_loadImages();//이미지 로드
   }
-
-  Future<void> _requestPermission() async {//권한 요청 함수
-    PermissionStatus status = await Permission.photos.status;
-
-    if (Platform.isAndroid) {
-      final androidInfo = await DeviceInfoPlugin().androidInfo;
-      if (androidInfo.version.sdkInt <= 32) {
-        status = await Permission.storage.status;
-        if (!status.isGranted) {
-          status = await Permission.storage.request();
-          if (!status.isGranted) {
-            throw Exception('Permission denied');
-          }
-          return;
-        }
-      }
-    }
-
-    if (!status.isGranted) {//사진 접근 권한이 없을 경우
-      status = await Permission.photos.request();
-      if (!status.isGranted) {//사진 접근 권한 요청
-        throw Exception('Permission denied');
-      }
-    }
-  }
-
-
   @override
   void dispose() {
     _pageController.dispose();//페이지 컨트롤러 해제
