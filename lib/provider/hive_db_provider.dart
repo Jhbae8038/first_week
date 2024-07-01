@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:kaist_summer_camp/model/memory_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
@@ -13,6 +14,7 @@ final hiveProvider = FutureProvider<HiveDB>((_) => HiveDB.create());
 class HiveDB {
   var userBox;
   var galleryBox;
+  var memoryBox;
 
   HiveDB._create() {}
 
@@ -27,13 +29,14 @@ class HiveDB {
 
     var boxCollection = await BoxCollection.open(
       'userDB', // Name of your database
-      {'user', 'gallery'}, // Names of your boxes
+      {'user', 'gallery', 'memory'}, // Names of your boxes
       path: await getApplicationDocumentsDirectory().then((dir) => dir.path),
     );
 
     userBox =
         await boxCollection.openBox<UserModel>('user');
     galleryBox = await boxCollection.openBox<String>('gallery');
+    memoryBox = await boxCollection.openBox<MemoryModel>('memory');
 
     await userBox.getAllKeys().then((value) {
       if (value.isEmpty) {
