@@ -1,48 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
+import 'package:kaist_summer_camp/provider/memories_provider.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';
 
-class FreeScreen extends StatefulWidget {
+import '../model/memory_model.dart';
+
+class FreeScreen extends ConsumerStatefulWidget {
   const FreeScreen({super.key});
 
   @override
   _FreeScreenState createState() => _FreeScreenState();
 }
 
-class _FreeScreenState extends State<FreeScreen> {
-  final List<Memory> _memories = [];
+class _FreeScreenState extends ConsumerState<FreeScreen> {
   final ImagePicker _picker = ImagePicker();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      final image = await _loadImage(File(pickedFile.path));
-      final date = _getFileDate(File(pickedFile.path));
-      setState(() {
-        _memories.add(Memory(File(pickedFile.path), '', image, date));
-      });
-    }
-  }
-
-  String _getFileDate(File file) {
-    final lastModified = file.lastModifiedSync();
-    return '${lastModified.year}-${lastModified.month}-${lastModified.day}';
-  }
-
-  Future<ui.Image> _loadImage(File file) async {
-    final data = await file.readAsBytes();
-    final completer = Completer<ui.Image>();
-    ui.decodeImageFromList(Uint8List.view(data.buffer), (image) {
-      completer.complete(image);
-    });
-    return completer.future;
-  }
 
   void _showLargeImage(Memory memory) {
     _titleController.text = memory.title;
@@ -136,62 +116,63 @@ class _FreeScreenState extends State<FreeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final memories = ref.watch(memoryProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Memories'),
         actions: [
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: _pickImage,
+            onPressed: () async{
+              await ref.read(memoryProvider.notifier).addMemory();
+            },
           ),
         ],
       ),
-      body: GestureDetector(
-        onTapUp: (details) {
-          RenderBox box = context.findRenderObject() as RenderBox;
-          Offset localOffset = box.globalToLocal(details.globalPosition);
-          for (int i = 0; i < _memories.length; i++) {
-            if (_memories[i].rect.contains(localOffset)) {
-              _showLargeImage(_memories[i]);
-              break;
-            }
+      body: FutureBuilder(
+        future: ref.read(memoryProvider.notifier).loadImageToUiImage(),
+        builder: (_, snapshot){
+          if(snapshot.connectionState == ConnectionState.waiting){
+            return Center(child: CircularProgressIndicator());
           }
-        },
-        child: SingleChildScrollView(
+          if(snapshot.hasError){
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if(snapshot.data == null){
+            return Center(child: Text('No memories yet.'));
+          }
+
+          List<ui.Image> images = snapshot.data!;
+
+          return SingleChildScrollView(
           child: Column(
             children: [
               Container(
                 width: 200,
                 height: 400,
                 child: CustomPaint(
-                  painter: TreePainter(_memories),
+                  painter: TreePainter(memories, images),
                   child: Container(), // 제스처 인식을 위한 빈 Container 추가
                 ),
               ),
-
               SizedBox(height: 20),
-              _memories.isEmpty
-                  ? Center(child: Text('No memories yet.'))
-                  : ListView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: _memories.length,
-                itemBuilder: (context, index) {
-                  final memory = _memories[index];
-                },
-              ),
+              Center(child: Text('No memories yet.'))
             ],
           ),
-        ),
+        );}
       ),
     );
   }
 }
 
-class TreePainter extends CustomPainter {
-  final List<Memory> memories;
 
-  TreePainter(this.memories);
+class TreePainter extends CustomPainter {
+  final List<MemoryModel> memories;
+  final List<ui.Image> images;
+
+  TreePainter(this.memories, this.images);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -222,8 +203,8 @@ class TreePainter extends CustomPainter {
         paint,
       );
 
-      final image = memories[i].image;
-      if (image != null) {
+      if (i < images.length) {
+        final image = images[i];
         final imageRect = Rect.fromCenter(
           center: Offset(size.width / 2 + dx, currentHeight - dy),
           width: 30,
@@ -236,8 +217,6 @@ class TreePainter extends CustomPainter {
           imageRect,
           Paint(),
         );
-
-        memories[i].rect = imageRect; // 이미지의 위치 저장
       }
 
       currentHeight -= dy / memories.length;
@@ -250,13 +229,3 @@ class TreePainter extends CustomPainter {
   }
 }
 
-class Memory {
-  final File file;
-  final ui.Image? image;
-  String title = '';
-  String description;
-  String? date;
-  Rect rect; // 이미지의 위치를 저장하는 Rect
-
-  Memory(this.file, this.description, this.image, this.date) : rect = Rect.zero;
-}
