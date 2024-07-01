@@ -16,16 +16,23 @@ class FreeScreen extends StatefulWidget {
 class _FreeScreenState extends State<FreeScreen> {
   final List<Memory> _memories = [];
   final ImagePicker _picker = ImagePicker();
+  final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
   Future<void> _pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       final image = await _loadImage(File(pickedFile.path));
+      final date = _getFileDate(File(pickedFile.path));
       setState(() {
-        _memories.add(Memory(File(pickedFile.path), '', image));
+        _memories.add(Memory(File(pickedFile.path), '', image, date));
       });
     }
+  }
+
+  String _getFileDate(File file) {
+    final lastModified = file.lastModifiedSync();
+    return '${lastModified.year}-${lastModified.month}-${lastModified.day}';
   }
 
   Future<ui.Image> _loadImage(File file) async {
@@ -37,64 +44,91 @@ class _FreeScreenState extends State<FreeScreen> {
     return completer.future;
   }
 
-  void _editDescription(int index) {
+  void _showLargeImage(Memory memory) {
+    _titleController.text = memory.title;
+    _descriptionController.text = memory.description;
     showDialog(
       context: context,
       builder: (context) {
-        _descriptionController.text = _memories[index].description;
         return AlertDialog(
-          title: Text('Edit Memory Description'),
-          content: TextField(
-            controller: _descriptionController,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Memory Description',
+          contentPadding: EdgeInsets.zero,
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          controller: _titleController,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            labelText: 'Diary Title',
+                          ),
+                          maxLines: 1,
+                          onChanged: (value) {
+                            setState(() {
+                              memory.title = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: Container(
+                    width: double.infinity,
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: Image.file(
+                        memory.file,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(memory.date ?? 'Date not available'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: _descriptionController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Memory Description',
+                    ),
+                    maxLines: null,
+                    onChanged: (value) {
+                      setState(() {
+                        memory.description = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
           actions: [
             TextButton(
               onPressed: () {
-                setState(() {
-                  _memories[index].description = _descriptionController.text;
-                });
                 Navigator.of(context).pop();
               },
               child: Text('Save'),
             ),
           ],
-        );
-      },
-    );
-  }
-
-  void _showLargeImage(Memory memory) {
-    _descriptionController.text = memory.description;
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) {
-        return Padding(//이미지를 눌렀을 때 이미지를 크게 보여주는 다이얼로그
-          padding: EdgeInsets.only(//키보드가 올라오면 다이얼로그가 가려지는 것을 방지
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Image.file(memory.file),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(memory.description),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _editDescription(_memories.indexOf(memory));
-                  },
-                  child: Text('Edit Description'),
-                ),
-              ],
-            ),
-          ),
         );
       },
     );
@@ -134,6 +168,7 @@ class _FreeScreenState extends State<FreeScreen> {
                   child: Container(), // 제스처 인식을 위한 빈 Container 추가
                 ),
               ),
+
               SizedBox(height: 20),
               _memories.isEmpty
                   ? Center(child: Text('No memories yet.'))
@@ -143,11 +178,6 @@ class _FreeScreenState extends State<FreeScreen> {
                 itemCount: _memories.length,
                 itemBuilder: (context, index) {
                   final memory = _memories[index];
-                  return ListTile(
-                    leading: Image.file(memory.file),
-                    title: Text(memory.description),
-                    onTap: () => _editDescription(index),
-                  );
                 },
               ),
             ],
@@ -223,8 +253,10 @@ class TreePainter extends CustomPainter {
 class Memory {
   final File file;
   final ui.Image? image;
+  String title = '';
   String description;
+  String? date;
   Rect rect; // 이미지의 위치를 저장하는 Rect
 
-  Memory(this.file, this.description, this.image) : rect = Rect.zero;
+  Memory(this.file, this.description, this.image, this.date) : rect = Rect.zero;
 }
