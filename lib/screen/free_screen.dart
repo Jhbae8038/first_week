@@ -24,7 +24,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
   final TextEditingController _descriptionController = TextEditingController();
 
 
-  void _showLargeImage(Memory memory) {
+  void _showLargeImage(MemoryModel memory) {
     _titleController.text = memory.title;
     _descriptionController.text = memory.description;
     showDialog(
@@ -72,7 +72,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                     child: AspectRatio(
                       aspectRatio: 1,
                       child: Image.file(
-                        memory.file,
+                        File(memory.imagePath),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -80,7 +80,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(memory.date ?? 'Date not available'),
+                  child: Text(memory.date.toString() ?? 'Date not available'),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
