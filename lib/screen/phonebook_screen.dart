@@ -1,20 +1,28 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kaist_summer_camp/component/contact_recentcall_component.dart';
 import 'package:kaist_summer_camp/component/contact_scroll_component.dart';
+import 'package:kaist_summer_camp/model/user_model.dart';
+import 'package:kaist_summer_camp/provider/user_provider.dart';
 import 'package:kaist_summer_camp/screen/contact_detail_screen.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../model/contact_model.dart';
 import '../util/util.dart';
 
-class PhoneBookScreen extends StatefulWidget {
+class PhoneBookScreen extends ConsumerStatefulWidget {
   const PhoneBookScreen({super.key});
 
   @override
-  State<PhoneBookScreen> createState() => _PhoneBookScreenState();
+  ConsumerState<PhoneBookScreen> createState() => _PhoneBookScreenState();
 }
 
-class _PhoneBookScreenState extends State<PhoneBookScreen> {
+class _PhoneBookScreenState extends ConsumerState<PhoneBookScreen> {
   late Future<List<ContactModel>> contactList;
   String _searchText = '';
   FocusNode _focusNode = FocusNode();
@@ -44,6 +52,8 @@ class _PhoneBookScreenState extends State<PhoneBookScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final userState = ref.watch(userProvider('owner'));
+
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).requestFocus(FocusNode());
@@ -60,12 +70,22 @@ class _PhoneBookScreenState extends State<PhoneBookScreen> {
           centerTitle: true,
           leading: Padding(
             padding: EdgeInsets.only(left: 8.0, top: 4.0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12.0), // 둥근 모서리의 정도를 조정
-              child: Image.asset(
-                'asset/default_profile.png',
-                fit: BoxFit.contain,
-              ),
+            child: GestureDetector(
+              onTap: () async{
+                final XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+                if (pickedFile != null) {
+                  ref.read(userProvider('owner').notifier).updateUserInfo(imagePath : pickedFile.path);
+                }
+              },
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12.0), // 둥근 모서리의 정도를 조정
+                  child: userState is UserLoading
+                      ? CircularProgressIndicator()
+                      : (userState as UserModel).imagePath != null
+                          ? Image.file(File(userState.imagePath!),
+                              fit: BoxFit.cover,)
+                          : Image.asset('asset/default_profile.png',
+                    fit: BoxFit.cover,)),
             ),
           ),
           actions: [
@@ -147,24 +167,28 @@ class _PhoneBookScreenState extends State<PhoneBookScreen> {
                         ),
                       ),
                       SliverToBoxAdapter(
-                          child: HorizontalContactsView(contacts: contacts, onContactTap: _onTapContact)),
-                      ];
+                          child: HorizontalContactsView(
+                              contacts: contacts, onContactTap: _onTapContact)),
+                    ];
                   },
-                  body: ContactScrollComponent(contactsToShow: queryContacts(contacts), onContactTap: _onTapContact),
+                  body: ContactScrollComponent(
+                      contactsToShow: queryContacts(contacts),
+                      onContactTap: _onTapContact),
                 );
               }
             }),
       ),
     );
   }
-  
+
   List<ContactModel> queryContacts(List<ContactModel> contacts) {
     if (_searchText.isEmpty || _searchText.trim() == '') {
       return contacts;
     }
 
     return contacts
-        .where((contact) => contact.name.toLowerCase().contains(_searchText.toLowerCase()))
+        .where((contact) =>
+            contact.name.toLowerCase().contains(_searchText.toLowerCase()))
         .toList();
   }
 

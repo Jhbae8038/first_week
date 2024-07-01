@@ -1,8 +1,12 @@
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:kaist_summer_camp/screen/free_screen.dart';
 import 'package:kaist_summer_camp/screen/gallery_screen.dart';
 import 'package:kaist_summer_camp/screen/phonebook_screen.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -91,3 +95,6 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 }
+
+
+
