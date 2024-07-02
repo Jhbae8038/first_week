@@ -9,157 +9,121 @@ class TreePainter extends CustomPainter {
   final List<ui.Image> images;
   final List<Rect> imageRects = [];
   final Function(int) onImageTap;
+  final List<ui.Image> treeImages;
 
-  TreePainter(this.memories, this.images, {required this.onImageTap});
-
-
+  TreePainter(this.memories, this.images,
+      {required this.onImageTap, required this.treeImages});
 
   @override
   void paint(Canvas canvas, Size size) {
-    final trunkHeight = size.height / 10;
     final trunkWidth = size.width / 20;
-
-    if(memories.length > 10){
-      final branchLength = size.width *0.5 - trunkWidth;
-      paintMiddleTree(canvas, size, trunkHeight: trunkHeight, trunkWidth: trunkWidth, branchLength: branchLength);
-    }else {
-      final branchLength = size.width *0.4 - trunkWidth;
-      paintSmallTree(canvas, size, trunkHeight: trunkHeight, trunkWidth: trunkWidth, branchLength: branchLength);
-    }
-
-
+    paintSmallTree(canvas, size);
   }
 
-  void paintMiddleTree(Canvas canvas, Size size, {required double trunkHeight,required double trunkWidth,required double branchLength}){
-    final paint = Paint()
-      ..color = Colors.brown
-      ..strokeWidth = 16.0
-      ..style = PaintingStyle.fill;
+  void _drawBackground(Canvas canvas, Size size) {
+    final paint = Paint();
+    final double totalHeight = size.height;
 
-    final leafPaint = Paint()
-      ..color = Colors.green
-      ..style = PaintingStyle.fill;
+    // 밤하늘
+    final nightSkyRect = Rect.fromLTWH(0, 0, size.width, totalHeight * 0.25);
+    paint.color = Color(0xFF001d3d);
+    canvas.drawRect(nightSkyRect, paint);
 
-    // Draw the trunk with some texture
-    final trunkPath = Path()
-      ..moveTo(size.width / 2 - trunkWidth / 2, size.height)
-      ..lineTo(size.width / 2 - trunkWidth / 2, trunkHeight)
-      ..lineTo(size.width / 2 + trunkWidth / 2, trunkHeight)
-      ..lineTo(size.width / 2 + trunkWidth / 2, size.height)
-      ..close();
-    canvas.drawPath(trunkPath, paint);
+    // 푸른 하늘
+    final blueSkyRect =
+        Rect.fromLTWH(0, totalHeight * 0.25, size.width, totalHeight * 0.25);
+    paint.color = Color(0xFF87CEEB);
+    canvas.drawRect(blueSkyRect, paint);
 
-    double currentHeight = size.height - trunkHeight;
+    // 노을
+    final sunsetRect =
+        Rect.fromLTWH(0, totalHeight * 0.5, size.width, totalHeight * 0.25);
+    paint.color = Color(0xFFFF4500);
+    canvas.drawRect(sunsetRect, paint);
 
-    for (int i = 0; i < memories.length; i++) {
-      final angle = math.pi / 6;
-      final dx = branchLength * math.cos(angle);
-      final dy = branchLength * math.sin(angle);
+    // 황금빛 들판
+    final goldenFieldRect =
+        Rect.fromLTWH(0, totalHeight * 0.75, size.width, totalHeight * 0.25);
+    paint.color = Color(0xFFFFD700);
+    canvas.drawRect(goldenFieldRect, paint);
 
-      final startX = size.width / 2;
-      final startY = currentHeight;
-      final endX = startX + dx * (i % 2 == 0 ? 1 : -1);
-      final endY = startY - dy;
-
-      // Draw the branch
-      canvas.drawLine(
-        Offset(startX, startY),
-        Offset(endX, endY),
-        paint,
-      );
-
-      // Draw leaves at the end of branches
-      final leafRect = Rect.fromCenter(
-        center: Offset(endX, endY),
-        width: 30,
-        height: 30,
-      );
-      canvas.drawOval(leafRect, leafPaint);
-
-      if (i < images.length) {
-        final image = images[i];
-        final imageRect = Rect.fromCenter(
-          center: Offset(endX, endY),
-          width: 60,
-          height: 60,
-        );
-
-        imageRects.add(imageRect);
-
-        canvas.drawImageRect(
-          image,
-          Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-          imageRect,
-          Paint(),
-        );
+    // 경계 혼재 영역 (블렌딩)
+    final blendPaint = Paint();
+    for (double y = 0; y < totalHeight; y += 1) {
+      final blendRatio = (y % (totalHeight / 4)) / (totalHeight / 4);
+      if (y < totalHeight * 0.25) {
+        blendPaint.color =
+            Color.lerp(Color(0xFF001d3d), Color(0xFF87CEEB), blendRatio)!;
+      } else if (y < totalHeight * 0.5) {
+        blendPaint.color =
+            Color.lerp(Color(0xFF87CEEB), Color(0xFFFF4500), blendRatio)!;
+      } else if (y < totalHeight * 0.75) {
+        blendPaint.color =
+            Color.lerp(Color(0xFFFF4500), Color(0xFFFFD700), blendRatio)!;
       }
-
-      currentHeight -= branchLength / 2; // Adjust current height for better spacing
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), blendPaint);
     }
   }
 
-
-  void paintSmallTree(Canvas canvas, Size size, {required double trunkHeight,required double trunkWidth,required double branchLength}){
+  void paintSmallTree(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.green
       ..strokeWidth = 12.0
       ..style = PaintingStyle.stroke;
 
+    final trunkHeight = size.height / 10;
+    final branchLength = size.width / 10;
 
-    final paintStroke = Paint()
-      ..color = Colors.green
-      ..strokeWidth = 8.0
-      ..style = PaintingStyle.stroke;
-
-    // Draw the trunk
-    canvas.drawLine(
-      Offset(size.width / 2, size.height),
-      Offset(size.width / 2, size.height - trunkHeight - branchLength*(memories.length-1)/2 - trunkHeight),
-      paint,
-    );
-
-    double currentHeight = size.height - trunkHeight;
-
+    double currentBackgroundHeight = size.height - trunkHeight;
 
     for (int i = 0; i < memories.length; i++) {
-      final angle = math.pi / 4;
-      final dx = branchLength * math.cos(angle);
-      final dy = branchLength * math.sin(angle);
-
       final startX = size.width / 2;
-      final startY = currentHeight;
-      final endX = startX + dx * (i % 2 == 0 ? 1 : -1);
-      final endY = startY - dy;
 
-      // Draw the branch
-      canvas.drawLine(
-        Offset(startX, startY),
-        Offset(endX, endY),
-        paintStroke,
+      final backgroundX = startX;
+      final backgroundY = currentBackgroundHeight;
+
+      currentBackgroundHeight -= (i == 0 ? 75 : 60);
+
+      final photoX = startX +
+          (i % 2 == 0 ? -1 : 1) * size.width * 0.3 +
+          (i % 2 == 0 ? 1 : -1) * 5;
+      final photoY = currentBackgroundHeight;
+
+      final image = images[i];
+
+      var backgroundImage = treeImages[i % 8];
+      if (i%8 ==0 && i !=0) backgroundImage = treeImages[8];
+
+        final backgroundRect = Rect.fromCenter(
+        center: Offset(backgroundX, backgroundY),
+        width: 85.8 * 4,
+        height: 60.8 * 4,
       );
 
-      if (i < images.length) {
-        final image = images[i];
-        final imageRect = Rect.fromCenter(
-          center: Offset(endX, endY),
-          width: 60,
-          height: 60,
-        );
+      final imageRect = Rect.fromCenter(
+        center: Offset(photoX, photoY),
+        width: 80,
+        height: 80,
+      );
 
-        imageRects.add(imageRect);
+      imageRects.add(imageRect);
 
-        canvas.drawImageRect(
-          image,
-          Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-          imageRect,
-          Paint(),
-        );
-      }
+      canvas.drawImageRect(
+        backgroundImage,
+        Rect.fromLTWH(0, 0, backgroundImage.width.toDouble(),
+            backgroundImage.height.toDouble()),
+        backgroundRect,
+        Paint(),
+      );
 
-      currentHeight -= branchLength / 2; // Adjust current height for better spacing
+      canvas.drawImageRect(
+        image,
+        Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+        imageRect,
+        Paint(),
+      );
     }
   }
-
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
