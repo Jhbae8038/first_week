@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
@@ -10,6 +12,12 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 
 import '../model/memory_model.dart';
+
+String _getFileDate(File file) {
+  final lastModified = file.lastModifiedSync();
+  final formattedDate = DateFormat('yyyy년 M월 d일 (E)', 'ko_KR').format(lastModified);
+  return formattedDate;
+}
 
 class FreeScreen extends ConsumerStatefulWidget {
   const FreeScreen({super.key});
@@ -23,6 +31,11 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting(); // 로케일 데이터 초기화
+  }
 
   void _showLargeImage(MemoryModel memory) {
     _titleController.text = memory.title;
@@ -45,24 +58,9 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                         Navigator.of(context).pop();
                       },
                     ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextField(
-                          controller: _titleController,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(),
-                            labelText: 'Diary Title',
-                          ),
-                          maxLines: 1,
-                          onChanged: (value) {
-                            setState(() {
-                              memory.title = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ),
+                    Spacer(flex:1),
+                    Text(_getFileDate(File(memory.imagePath)) ?? 'Date not available'),
+                    Spacer(flex:2),
                   ],
                 ),
                 Padding(
@@ -78,9 +76,22 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                     ),
                   ),
                 ),
+
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(memory.date.toString() ?? 'Date not available'),
+                  child: TextField(
+                    controller: _titleController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Diary Title',
+                    ),
+                    maxLines: 1,
+                    onChanged: (value) {
+                      setState(() {
+                        memory.title = value;
+                      });
+                    },
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -154,11 +165,24 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                 height: 400,
                 child: CustomPaint(
                   painter: TreePainter(memories, images),
-                  child: Container(), // 제스처 인식을 위한 빈 Container 추가
                 ),
               ),
               SizedBox(height: 20),
-              Center(child: Text('No memories yet.'))
+              memories.isEmpty
+                  ? Center(child: Text('No memories yet.'))
+                  : ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: memories.length,
+                itemBuilder: (context, index) {
+                  final memory = memories[index];
+                  return ListTile(
+                    leading: Image.file(File(memory.imagePath)),
+                    title: Text(memory.description),
+                    onTap: () => _showLargeImage(memory),
+                  );
+                },
+              ),
             ],
           ),
         );}
