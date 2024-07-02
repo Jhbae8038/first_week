@@ -56,7 +56,6 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
     _titleController.text = memory.title;
     _descriptionController.text = memory.description;
 
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -68,10 +67,11 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
           },
           child: DraggableScrollableSheet(
             expand: false,
-            initialChildSize: 0.8,
+            initialChildSize: 0.75,
             builder: (context, scrollController) {
-              if(MediaQuery.of(context).viewInsets.bottom > 0){
-                scrollController.jumpTo(scrollController.position.maxScrollExtent);
+              if (MediaQuery.of(context).viewInsets.bottom > 0) {
+                scrollController
+                    .jumpTo(scrollController.position.maxScrollExtent);
               }
 
               return SingleChildScrollView(
@@ -101,7 +101,9 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                             IconButton(
                               icon: Icon(Icons.delete),
                               onPressed: () {
-                                ref.read(memoryProvider.notifier).deleteMemory(memory);
+                                ref
+                                    .read(memoryProvider.notifier)
+                                    .deleteMemory(memory);
                                 Navigator.of(context).pop();
                               },
                             ),
@@ -128,6 +130,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                               hintText: '제목',
                               hintStyle: TextStyle(
                                 fontWeight: FontWeight.bold,
+                                color: Colors.black45,
                                 fontSize: 16,
                               ),
                               border: UnderlineInputBorder(
@@ -217,7 +220,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
       isScrollControlled: true,
       builder: (context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.8,
+          initialChildSize: 0.7,
           minChildSize: 0.5,
           maxChildSize: 1.0,
           expand: false,
@@ -286,10 +289,16 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: TextField(
+                          style: TextStyle(
+                            fontFamily: 'EF_Diary',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                           controller: _titleController,
                           decoration: InputDecoration(
                             hintText: '제목',
                             hintStyle: TextStyle(
+                              fontFamily: 'EF_Diary',
                               fontWeight: FontWeight.bold,
                               fontSize: 16,
                             ),
@@ -326,9 +335,14 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                         child: TextField(
                           controller: _descriptionController,
                           focusNode: _descriptionFocusNode,
+                          style: TextStyle(
+                            fontFamily: 'EF_Diary',
+                            fontSize: 14,
+                          ),
                           decoration: InputDecoration(
                             hintText: '어떤 추억이 담겨 있나요?',
                             hintStyle: TextStyle(
+                              fontFamily: 'EF_Diary',
                               fontSize: 14,
                               color: Colors.grey.withOpacity(0.6),
                             ),
@@ -349,7 +363,6 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                           if (_selectedImage == null) {
                             return;
                           }
-
                           if (memory == null) {
                             memory = MemoryModel(
                               imagePath: _selectedImage!,
@@ -359,6 +372,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                             );
                             // Save the memory here if necessary
                           }
+                          ref.read(memoryProvider.notifier).addMemory(memory!);
                         },
                         child: Text('Save'),
                       ),
