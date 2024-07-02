@@ -78,6 +78,7 @@ flutter:
 
   assets:
     - asset/default_profile.png
+    - asset/bottom.png
     - asset/g_left.png
     - asset/g_right.png
     - asset/brown_left.png
