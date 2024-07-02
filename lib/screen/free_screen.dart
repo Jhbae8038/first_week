@@ -140,9 +140,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     onChanged: (value) {
-                      setState(() {
                         memory.title = value;
-                      });
                     },
                   ),
                 ),
