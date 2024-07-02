@@ -26,6 +26,8 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
   final ScrollController _scrollController = ScrollController();
   final FocusNode _descriptionFocusNode = FocusNode();
 
+  String? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
   double scrollPosition = double.infinity;
 
   @override
@@ -185,6 +187,186 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
     );
   }
 
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = pickedFile.path;
+      });
+    }
+  }
+
+  void _showDiaryEditor(MemoryModel? memory) {
+    if (memory != null) {
+      _titleController.text = memory.title;
+      _descriptionController.text = memory.description;
+      _selectedImage = memory.imagePath;
+    } else {
+      _titleController.clear();
+      _descriptionController.clear();
+      _selectedImage = null;
+    }
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.8,
+          minChildSize: 0.5,
+          maxChildSize: 1.0,
+          expand: false,
+          builder: (context, scrollController) {
+            return SingleChildScrollView(
+              controller: scrollController,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: Container(
+                  padding: EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          Spacer(flex: 1),
+                          if (memory != null)
+                            Text(Util.getFileDate(File(memory!.imagePath)) ??
+                                'Date not available'),
+                          Spacer(flex: 1),
+                          if (memory != null)
+                            IconButton(
+                              icon: Icon(Icons.delete),
+                              onPressed: () {
+                                // ref.read(memoryProvider.notifier).deleteMemory(memory);
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                        ],
+                      ),
+                      if (_selectedImage != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Container(
+                            width: double.infinity,
+                            child: AspectRatio(
+                              aspectRatio: 1,
+                              child: Image.file(
+                                File(_selectedImage!),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (_selectedImage == null)
+                        ElevatedButton(
+                          onPressed: () async {
+                            final pickedFile = await _picker.pickImage(
+                                source: ImageSource.gallery);
+
+                            setState(() {
+                              _selectedImage = pickedFile!.path;
+                            });
+                          },
+                          child: Text('사진 추가'),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          controller: _titleController,
+                          decoration: InputDecoration(
+                            hintText: '제목',
+                            hintStyle: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            border: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          onChanged: (value) {
+                            if (memory != null) {
+                              memory!.title = value;
+                            }
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          controller: _descriptionController,
+                          focusNode: _descriptionFocusNode,
+                          decoration: InputDecoration(
+                            hintText: '어떤 추억이 담겨 있나요?',
+                            hintStyle: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.withOpacity(0.6),
+                            ),
+                            border: InputBorder.none,
+                          ),
+                          maxLines: null,
+                          onChanged: (value) {
+                            if (memory != null) {
+                              memory!.description = value;
+                            }
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          if (_selectedImage == null) {
+                            return;
+                          }
+
+                          if (memory == null) {
+                            memory = MemoryModel(
+                              imagePath: _selectedImage!,
+                              title: _titleController.text,
+                              description: _descriptionController.text,
+                              date: DateTime.now(),
+                            );
+                            // Save the memory here if necessary
+                          }
+                        },
+                        child: Text('Save'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final memories = ref.watch(memoryProvider);
@@ -196,8 +378,8 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
           actions: [
             IconButton(
               icon: Icon(Icons.add),
-              onPressed: () async {
-                await ref.read(memoryProvider.notifier).addMemory();
+              onPressed: () {
+                _showDiaryEditor(null);
               },
             ),
           ],

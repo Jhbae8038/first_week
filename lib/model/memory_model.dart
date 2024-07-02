@@ -9,7 +9,7 @@ part 'memory_model.g.dart';
 @HiveType(typeId: 1)
 class MemoryModel {
   @HiveField(0)
-  final String imagePath;
+  late final String imagePath;
   @HiveField(1)
   String description;
   @HiveField(2)
