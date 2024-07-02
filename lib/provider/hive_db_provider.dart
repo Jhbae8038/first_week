@@ -26,6 +26,7 @@ class HiveDB {
 
   _init() async {
     Hive.registerAdapter<UserModel>(UserModelAdapter());
+    Hive.registerAdapter<MemoryModel>(MemoryModelAdapter());
 
     var boxCollection = await BoxCollection.open(
       'userDB', // Name of your database
