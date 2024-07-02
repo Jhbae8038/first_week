@@ -321,4 +321,3 @@ class TreePainter extends CustomPainter {
     return false;
   }
 }
-
