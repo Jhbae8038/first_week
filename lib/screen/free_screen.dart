@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:kaist_summer_camp/provider/memories_provider.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:kaist_summer_camp/provider/uiImage_provider.dart';
 
 import '../model/memory_model.dart';
 
@@ -19,9 +20,32 @@ class FreeScreen extends ConsumerStatefulWidget {
 }
 
 class _FreeScreenState extends ConsumerState<FreeScreen> {
-  final ImagePicker _picker = ImagePicker();
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  double scrollPosition = double.infinity;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _scrollController.addListener(_updateScrollPosition);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    _scrollController.removeListener(_updateScrollPosition);
+    _scrollController.dispose();
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  void _updateScrollPosition() {
+    scrollPosition = _scrollController.position.pixels;
+  }
 
   void _showLargeImage(MemoryModel memory) {
     _titleController.text = memory.title;
@@ -55,9 +79,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                           ),
                           maxLines: 1,
                           onChanged: (value) {
-                            setState(() {
-                              memory.title = value;
-                            });
+                            memory.title = value;
                           },
                         ),
                       ),
@@ -91,9 +113,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                     ),
                     maxLines: null,
                     onChanged: (value) {
-                      setState(() {
-                        memory.description = value;
-                      });
+                      memory.description = value;
                     },
                   ),
                 ),
@@ -116,70 +136,77 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
   @override
   Widget build(BuildContext context) {
     final memories = ref.watch(memoryProvider);
+    final uiImages = ref.watch(uiImageProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Memories'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () async{
-              await ref.read(memoryProvider.notifier).addMemory();
-            },
-          ),
-        ],
-      ),
-      body: FutureBuilder(
-        future: ref.read(memoryProvider.notifier).loadImageToUiImage(),
-        builder: (_, snapshot){
-          if(snapshot.connectionState == ConnectionState.waiting){
-            return Center(child: CircularProgressIndicator());
-          }
-          if(snapshot.hasError){
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
-          if(snapshot.data == null){
-            return Center(child: Text('No memories yet.'));
-          }
-
-          List<ui.Image> images = snapshot.data!;
-
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SingleChildScrollView(
-              child: Column(
-                children: [
-                  Container(
-                    width: 200,
-                    height: 400,
-                    color: Colors.accents[0],
-                    child: CustomPaint(
-                      painter: TreePainter(memories, images, onImageTap: (index) {
-                        _showLargeImage(memories[index]);
-                        ref.read(memoryProvider.notifier).saveMemory();
-                      }),
-                      child: Container(), // 제스처 인식을 위한 빈 Container 추가
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  if(memories.isEmpty) Center(child: Text('No memories yet.'))
-                ],
-              ),
+        appBar: AppBar(
+          title: Text('Memories'),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () async {
+                await ref.read(memoryProvider.notifier).addMemory();
+              },
+            ),
+          ],
         ),
-            ],
-          );}
-      ),
-    );
+        body: uiImages.when(
+          data: (data) {
+
+            if (_scrollController.hasClients && scrollPosition == double.infinity) {
+              _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+            }
+
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 200,
+                        height: memories.length * 100.0 + 100.0,
+                        color: Colors.accents[0],
+                        child: CustomPaint(
+                          painter: TreePainter(memories, data,
+                              onImageTap: (index) {
+                            _showLargeImage(memories[index]);
+                            ref.read(memoryProvider.notifier).saveMemory();
+                          }),
+                          child: Container(), // 제스처 인식을 위한 빈 Container 추가
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Container(
+                        height: MediaQuery.of(context).size.height * 0.15,
+                        child: memories.isEmpty
+                            ? Center(child: Text('No memories yet.'))
+                            : Center(
+                                child: Text(
+                                  'Since\n xxxx.xx.xx',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+          error: (error, stack) => Center(child: Text('Error: $error')),
+          loading: () => Center(
+            child: CircularProgressIndicator(),
+          ),
+        ));
   }
 }
-
 
 class TreePainter extends CustomPainter {
   final List<MemoryModel> memories;
   final List<ui.Image> images;
-  final List<Rect> imageRects =[];
+  final List<Rect> imageRects = [];
   final Function(int) onImageTap;
 
   TreePainter(this.memories, this.images, {required this.onImageTap});
@@ -251,4 +278,3 @@ class TreePainter extends CustomPainter {
     return false;
   }
 }
-
