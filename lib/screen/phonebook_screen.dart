@@ -79,7 +79,7 @@ class _PhoneBookScreenState extends ConsumerState<PhoneBookScreen> {
               },
               child: ClipRRect(
                   borderRadius: BorderRadius.circular(12.0), // 둥근 모서리의 정도를 조정
-                  child: userState is UserLoading
+                  child: userState is UserLoading || userState is UserError
                       ? CircularProgressIndicator()
                       : (userState as UserModel).imagePath != null
                           ? Image.file(File(userState.imagePath!),
