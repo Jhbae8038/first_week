@@ -41,7 +41,7 @@ class MemoryNotifier extends StateNotifier<List<MemoryModel>> {
     }
   }
 
-  Future<void> _saveMemory() async {
+  Future<void> saveMemory() async {
     if (memoryBox != null) {
       await memoryBox!.clear(); // Clear the box before saving new data
       for (int i = 0; i < state.length; i++) {
@@ -50,13 +50,14 @@ class MemoryNotifier extends StateNotifier<List<MemoryModel>> {
     }
   }
 
-
   // 파일 추가 메서드
   Future<void> addMemory() async {
     final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       final newMemory = MemoryModel(imagePath: pickedFile.path, title: 'New Memory', description: 'New Description', date: DateTime.now());
       state = [...state, newMemory].toList();
+
+      await saveMemory();
     }
   }
 

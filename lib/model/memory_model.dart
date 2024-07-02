@@ -4,6 +4,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 
+part 'memory_model.g.dart';
+
 @HiveType(typeId: 1)
 class MemoryModel {
   @HiveField(0)

@@ -23,7 +23,6 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
-
   void _showLargeImage(MemoryModel memory) {
     _titleController.text = memory.title;
     _descriptionController.text = memory.description;
@@ -146,22 +145,31 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
 
           List<ui.Image> images = snapshot.data!;
 
-          return SingleChildScrollView(
-          child: Column(
+          return Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                width: 200,
-                height: 400,
-                child: CustomPaint(
-                  painter: TreePainter(memories, images),
-                  child: Container(), // 제스처 인식을 위한 빈 Container 추가
-                ),
+              SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    width: 200,
+                    height: 400,
+                    color: Colors.accents[0],
+                    child: CustomPaint(
+                      painter: TreePainter(memories, images, onImageTap: (index) {
+                        _showLargeImage(memories[index]);
+                        ref.read(memoryProvider.notifier).saveMemory();
+                      }),
+                      child: Container(), // 제스처 인식을 위한 빈 Container 추가
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  if(memories.isEmpty) Center(child: Text('No memories yet.'))
+                ],
               ),
-              SizedBox(height: 20),
-              Center(child: Text('No memories yet.'))
+        ),
             ],
-          ),
-        );}
+          );}
       ),
     );
   }
@@ -171,8 +179,10 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
 class TreePainter extends CustomPainter {
   final List<MemoryModel> memories;
   final List<ui.Image> images;
+  final List<Rect> imageRects =[];
+  final Function(int) onImageTap;
 
-  TreePainter(this.memories, this.images);
+  TreePainter(this.memories, this.images, {required this.onImageTap});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -211,6 +221,8 @@ class TreePainter extends CustomPainter {
           height: 30,
         );
 
+        imageRects.add(imageRect);
+
         canvas.drawImageRect(
           image,
           Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
@@ -226,6 +238,17 @@ class TreePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true;
+  }
+
+  @override
+  bool hitTest(Offset position) {
+    for (int i = 0; i < imageRects.length; i++) {
+      if (imageRects[i].contains(position)) {
+        onImageTap(i);
+        return true;
+      }
+    }
+    return false;
   }
 }
 
