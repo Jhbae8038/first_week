@@ -83,6 +83,15 @@ flutter:
   #      -asset: assets/fonts/EF_Diary.otf
   assets:
     - asset/default_profile.png
+    - asset/g_left.png
+    - asset/g_right.png
+    - asset/brown_left.png
+    - asset/brown_right.png
+    - asset/dg_left.png
+    - asset/dg_right.png
+    - asset/lg_left.png
+    - asset/lg_right.png
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

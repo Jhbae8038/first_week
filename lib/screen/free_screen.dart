@@ -55,7 +55,6 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
   void _showLargeImage(MemoryModel memory) {
     _titleController.text = memory.title;
     _descriptionController.text = memory.description;
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -130,7 +129,6 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                               hintText: '제목',
                               hintStyle: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black45,
                                 fontSize: 16,
                               ),
                               border: UnderlineInputBorder(
@@ -196,192 +194,160 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
     );
   }
 
-  Future<void> _pickImage() async {
-    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _selectedImage = pickedFile.path;
-      });
-    }
-  }
+  void _showDiaryEditor() {
+    _titleController.clear();
+    _descriptionController.clear();
+    _selectedImage = null;
 
-  void _showDiaryEditor(MemoryModel? memory) {
-    if (memory != null) {
-      _titleController.text = memory.title;
-      _descriptionController.text = memory.description;
-      _selectedImage = memory.imagePath;
-    } else {
-      _titleController.clear();
-      _descriptionController.clear();
-      _selectedImage = null;
-    }
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          minChildSize: 0.5,
-          maxChildSize: 1.0,
-          expand: false,
-          builder: (context, scrollController) {
-            return SingleChildScrollView(
-              controller: scrollController,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom,
-                ),
-                child: Container(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.close),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                          Spacer(flex: 1),
-                          if (memory != null)
-                            Text(Util.getFileDate(File(memory!.imagePath)) ??
-                                'Date not available'),
-                          Spacer(flex: 1),
-                          if (memory != null)
-                            IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                // ref.read(memoryProvider.notifier).deleteMemory(memory);
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                        ],
-                      ),
-                      if (_selectedImage != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Container(
-                            width: double.infinity,
-                            child: AspectRatio(
-                              aspectRatio: 1,
-                              child: Image.file(
-                                File(_selectedImage!),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          ),
-                        ),
-                      if (_selectedImage == null)
-                        ElevatedButton(
-                          onPressed: () async {
-                            final pickedFile = await _picker.pickImage(
-                                source: ImageSource.gallery);
-
-                            setState(() {
-                              _selectedImage = pickedFile!.path;
-                            });
-                          },
-                          child: Text('사진 추가'),
-                        ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextField(
-                          style: TextStyle(
-                            fontFamily: 'EF_Diary',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                          controller: _titleController,
-                          decoration: InputDecoration(
-                            hintText: '제목',
-                            hintStyle: TextStyle(
-                              fontFamily: 'EF_Diary',
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                            border: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          onChanged: (value) {
-                            if (memory != null) {
-                              memory!.title = value;
-                            }
-                          },
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextField(
-                          controller: _descriptionController,
-                          focusNode: _descriptionFocusNode,
-                          style: TextStyle(
-                            fontFamily: 'EF_Diary',
-                            fontSize: 14,
-                          ),
-                          decoration: InputDecoration(
-                            hintText: '어떤 추억이 담겨 있나요?',
-                            hintStyle: TextStyle(
-                              fontFamily: 'EF_Diary',
-                              fontSize: 14,
-                              color: Colors.grey.withOpacity(0.6),
-                            ),
-                            border: InputBorder.none,
-                          ),
-                          maxLines: null,
-                          onChanged: (value) {
-                            if (memory != null) {
-                              memory!.description = value;
-                            }
-                          },
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                          if (_selectedImage == null) {
-                            return;
-                          }
-                          if (memory == null) {
-                            memory = MemoryModel(
-                              imagePath: _selectedImage!,
-                              title: _titleController.text,
-                              description: _descriptionController.text,
-                              date: DateTime.now(),
-                            );
-                            // Save the memory here if necessary
-                          }
-                          ref.read(memoryProvider.notifier).addMemory(memory!);
-                        },
-                        child: Text('Save'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            );
+        return GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
           },
+          child: StatefulBuilder(
+            builder: (BuildContext context, void Function(void Function()) setState) {
+              return DraggableScrollableSheet(
+                initialChildSize: 0.8,
+                minChildSize: 0.5,
+                maxChildSize: 1.0,
+                expand: false,
+                builder: (context, scrollController) {
+                  if (MediaQuery.of(context).viewInsets.bottom > 0) {
+                    scrollController
+                        .jumpTo(scrollController.position.maxScrollExtent);
+                  }
+
+                  return SingleChildScrollView(
+                    controller: scrollController,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.of(context).viewInsets.bottom,
+                      ),
+                      child: Container(
+                        padding: EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.close),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                Spacer(flex: 1),
+                                Spacer(flex: 1),
+                              ],
+                            ),
+                            if (_selectedImage != null)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Container(
+                                  width: double.infinity,
+                                  child: AspectRatio(
+                                    aspectRatio: 1,
+                                    child: Image.file(
+                                      File(_selectedImage!),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (_selectedImage == null)
+                              ElevatedButton(
+                                onPressed: () async {
+                                  final pickedFile = await _picker.pickImage(
+                                      source: ImageSource.gallery);
+
+                                  _selectedImage = pickedFile!.path;
+                                  setState(() {});
+                                },
+                                child: Text('사진 추가'),
+                              ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextField(
+                                controller: _titleController,
+                                decoration: InputDecoration(
+                                  hintText: '제목',
+                                  hintStyle: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                  border: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.grey,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: TextField(
+                                controller: _descriptionController,
+                                focusNode: _descriptionFocusNode,
+                                decoration: InputDecoration(
+                                  hintText: '어떤 추억이 담겨 있나요?',
+                                  hintStyle: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey.withOpacity(0.6),
+                                  ),
+                                  border: InputBorder.none,
+                                ),
+                                maxLines: null,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                if (_selectedImage == null) {
+                                  return;
+                                }
+
+                                ref
+                                    .read(memoryProvider.notifier)
+                                    .addMemory(MemoryModel(
+                                  imagePath: _selectedImage!,
+                                  title: _titleController.text,
+                                  description: _descriptionController.text,
+                                  date: DateTime.now(),
+                                ));
+
+                                // Save the memory here if necessary
+                              },
+                              child: Text('Save'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         );
       },
     );
@@ -391,6 +357,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
   Widget build(BuildContext context) {
     final memories = ref.watch(memoryProvider);
     final uiImages = ref.watch(uiImageProvider);
+    final uiBackground = ref.watch(uiTreeImageProvider);
 
     return Scaffold(
         appBar: AppBar(
@@ -399,59 +366,78 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
             IconButton(
               icon: Icon(Icons.add),
               onPressed: () {
-                _showDiaryEditor(null);
+                _showDiaryEditor();
               },
             ),
           ],
         ),
-        body: uiImages.when(
-          data: (data) {
-            if (_scrollController.hasClients &&
-                scrollPosition == double.infinity) {
-              _scrollController
-                  .jumpTo(_scrollController.position.maxScrollExtent);
-            }
-            return Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SingleChildScrollView(
-                  controller: _scrollController,
-                  child: Column(
-                    children: [
-                      Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: memories.length * 100.0 + 100.0,
-                        child: CustomPaint(
-                          painter:
+        body: uiBackground.when(
+          data: (uiBackground) {
+            return uiImages.when(
+              data: (data) {
+                if (_scrollController.hasClients &&
+                    scrollPosition == double.infinity) {
+                  _scrollController
+                      .jumpTo(_scrollController.position.maxScrollExtent);
+                }
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SingleChildScrollView(
+                      controller: _scrollController,
+                      child: Column(
+                        children: [
+                          Container(
+                            width: MediaQuery
+                                .of(context)
+                                .size
+                                .width,
+                            height: memories.length * 100.0 + 100.0,
+                            child: CustomPaint(
+                              painter:
                               TreePainter(memories, data, onImageTap: (index) {
-                            _showLargeImage(memories[index]);
-                            ref.read(memoryProvider.notifier).saveMemory();
-                          }),
-                          child: Container(), // 제스처 인식을 위한 빈 Container 추가
-                        ),
-                      ),
-                      SizedBox(height: 20),
-                      Container(
-                        height: MediaQuery.of(context).size.height * 0.15,
-                        child: memories.isEmpty
-                            ? Center(child: Text('No memories yet.'))
-                            : Center(
-                                child: Text(
-                                  'Since\n xxxx.xx.xx',
-                                  textAlign: TextAlign.center,
-                                ),
+                                _showLargeImage(memories[index]);
+                                ref.read(memoryProvider.notifier).saveMemory();
+                              }, treeImages: uiBackground),
+                              child: Container(), // 제스처 인식을 위한 빈 Container 추가
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          Container(
+                            height: MediaQuery
+                                .of(context)
+                                .size
+                                .height * 0.15,
+                            child: memories.isEmpty
+                                ? Center(child: Text('No memories yet.'))
+                                : Center(
+                              child: Text(
+                                'Since\n xxxx.xx.xx',
+                                textAlign: TextAlign.center,
                               ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
+                  ],
+                );
+              },
+              error: (error, stack) => Center(child: Text('Error: $error')),
+              loading: () =>
+                  Center(
+                    child: CircularProgressIndicator(),
                   ),
-                ),
-              ],
             );
-          },
-          error: (error, stack) => Center(child: Text('Error: $error')),
-          loading: () => Center(
+          }, error: (Object error, StackTrace stackTrace) { // 에러 발생 시
+            return Center(
+              child: Text('Error: $error'),
+            );
+          }, loading: () { // 로딩 중일 때
+          return Center(
             child: CircularProgressIndicator(),
-          ),
+          );
+        }
         ));
   }
 }
