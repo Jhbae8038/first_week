@@ -50,10 +50,19 @@ class MemoryNotifier extends StateNotifier<List<MemoryModel>> {
     }
   }
 
-  // 파일 추가 메서드
-  Future<void> addMemory(MemoryModel memory) async {
-    state = [...state, memory];
+  Future<void> deleteMemory(MemoryModel memory) async {
+    state.remove(memory);
+    state = state.toList();
     await saveMemory();
+  }
+
+  // 파일 추가 메서드
+  Future<void> addMemory(MemoryModel memoryModel) async {
+
+    if (memoryModel.imagePath.trim().isNotEmpty) {
+      state = [...state, memoryModel].toList();
+      await saveMemory();
+    }
   }
 
 
