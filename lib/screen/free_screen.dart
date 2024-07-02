@@ -40,12 +40,17 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
   void _showLargeImage(MemoryModel memory) {
     _titleController.text = memory.title;
     _descriptionController.text = memory.description;
+    _titleController.clear();
+    _descriptionController.clear();
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           contentPadding: EdgeInsets.zero,
-          content: SingleChildScrollView(
+          content: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -60,7 +65,14 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                     ),
                     Spacer(flex:1),
                     Text(_getFileDate(File(memory.imagePath)) ?? 'Date not available'),
-                    Spacer(flex:2),
+                    Spacer(flex:1),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () {
+                        //ref.read(memoryProvider.notifier).deleteMemory(memory);
+                        Navigator.of(context).pop();
+                      },
+                    ),
                   ],
                 ),
                 Padding(
@@ -83,8 +95,30 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                     controller: _titleController,
                     decoration: InputDecoration(
                       hintText: '제목',
-                      border: UnderlineInputBorder(),
+                      hintStyle: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      border: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
                     ),
+                    textAlign: TextAlign.center,
                     maxLines: 1,
                     onChanged: (value) {
                       setState(() {
@@ -99,8 +133,13 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                   child: TextField(
                     controller: _descriptionController,
                     decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Memory Description',
+                      hintText: '어떤 추억이 담겨 있나요?',
+                      hintStyle: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.withOpacity(0.6),
+
+                      ),
+                      border: InputBorder.none,
                     ),
                     maxLines: null,
                     onChanged: (value) {
@@ -113,14 +152,8 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Save'),
-            ),
-          ],
+          ),
+
         );
       },
     );
