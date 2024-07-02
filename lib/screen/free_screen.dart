@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'dart:io';
-import 'dart:math' as math;
-import 'dart:ui' as ui;
 import 'package:flutter/services.dart';
+import 'package:kaist_summer_camp/component/custom_painter.dart';
 import 'package:kaist_summer_camp/provider/memories_provider.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:kaist_summer_camp/provider/uiImage_provider.dart';
+import 'package:kaist_summer_camp/util/util.dart';
 
 import '../model/memory_model.dart';
 
-String _getFileDate(File file) {
-  final lastModified = file.lastModifiedSync();
-  final formattedDate = DateFormat('yyyy년 M월 d일 (E)', 'ko_KR').format(lastModified);
-  return formattedDate;
-}
+
 
 class FreeScreen extends ConsumerStatefulWidget {
   const FreeScreen({super.key});
@@ -59,8 +54,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
   void _showLargeImage(MemoryModel memory) {
     _titleController.text = memory.title;
     _descriptionController.text = memory.description;
-    _titleController.clear();
-    _descriptionController.clear();
+
     showDialog(
       context: context,
       builder: (context) {
@@ -83,7 +77,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                       },
                     ),
                     Spacer(flex:1),
-                    Text(_getFileDate(File(memory.imagePath)) ?? 'Date not available'),
+                    Text(Util.getFileDate(File(memory.imagePath)) ?? 'Date not available'),
                     Spacer(flex:1),
                     IconButton(
                       icon: Icon(Icons.delete),
@@ -167,7 +161,6 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
             ),
           ),
           ),
-
         );
       },
     );
@@ -205,9 +198,8 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                   child: Column(
                     children: [
                       Container(
-                        width: 200,
+                        width: MediaQuery.of(context).size.width,
                         height: memories.length * 100.0 + 100.0,
-                        color: Colors.accents[0],
                         child: CustomPaint(
                           painter: TreePainter(memories, data,
                               onImageTap: (index) {
@@ -240,82 +232,5 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
             child: CircularProgressIndicator(),
           ),
         ));
-  }
-}
-
-
-class TreePainter extends CustomPainter {
-  final List<MemoryModel> memories;
-  final List<ui.Image> images;
-  final List<Rect> imageRects = [];
-  final Function(int) onImageTap;
-
-  TreePainter(this.memories, this.images, {required this.onImageTap});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.green
-      ..strokeWidth = 4.0
-      ..style = PaintingStyle.stroke;
-
-    final trunkHeight = size.height / 3;
-    final trunkWidth = size.width / 10;
-
-    canvas.drawLine(
-      Offset(size.width / 2, size.height),
-      Offset(size.width / 2, size.height - trunkHeight),
-      paint,
-    );
-
-    double currentHeight = size.height - trunkHeight;
-    for (int i = 0; i < memories.length; i++) {
-      final angle = (i % 2 == 0) ? -0.5 : 0.5;
-      final branchLength = trunkHeight / (memories.length + 1) * (i + 1);
-      final dx = branchLength * math.sin(angle);
-      final dy = branchLength * math.cos(angle);
-
-      canvas.drawLine(
-        Offset(size.width / 2, currentHeight),
-        Offset(size.width / 2 + dx, currentHeight - dy),
-        paint,
-      );
-
-      if (i < images.length) {
-        final image = images[i];
-        final imageRect = Rect.fromCenter(
-          center: Offset(size.width / 2 + dx, currentHeight - dy),
-          width: 30,
-          height: 30,
-        );
-
-        imageRects.add(imageRect);
-
-        canvas.drawImageRect(
-          image,
-          Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-          imageRect,
-          Paint(),
-        );
-      }
-
-      currentHeight -= dy / memories.length;
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
-
-  @override
-  bool hitTest(Offset position) {
-    for (int i = 0; i < imageRects.length; i++) {
-      if (imageRects[i].contains(position)) {
-        onImageTap(i);
-        return true;
-      }
-    }
-    return false;
   }
 }

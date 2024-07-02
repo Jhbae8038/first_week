@@ -1,4 +1,6 @@
 // Import package
+import 'dart:io';
+
 import 'package:call_log/call_log.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,7 @@ import 'dart:typed_data';
 import 'package:kaist_summer_camp/model/contact_model.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 
 class Util {
   static Future<List<ContactModel>> getContactInfoFromPhoneContact() async {
@@ -208,6 +211,12 @@ class Util {
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     return "Lat: ${position.latitude}, Long: ${position.longitude}";
+  }
+
+  static String getFileDate(File file) {
+    final lastModified = file.lastModifiedSync();
+    final formattedDate = DateFormat('yyyy년 M월 d일 (E)', 'ko_KR').format(lastModified);
+    return formattedDate;
   }
 }
 
