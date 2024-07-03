@@ -273,6 +273,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+
                                 Spacer(flex: 1),
                                 IconButton(
                                   onPressed: () {
