@@ -78,7 +78,7 @@ flutter:
 
   assets:
     - asset/default_profile.png
-    - asset/bottom.png
+    - asset/ground_left.png
     - asset/g_left.png
     - asset/g_right.png
     - asset/brown_left.png
@@ -87,6 +87,11 @@ flutter:
     - asset/dg_right.png
     - asset/lg_left.png
     - asset/lg_right.png
+
+  fonts:
+    - family: EF_Diary
+      fonts:
+        - asset: asset/fonts/EF_Diary(otf).otf
 
   # To add assets to your application, add an assets section, like this:
   # assets:
