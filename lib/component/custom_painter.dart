@@ -20,59 +20,13 @@ class TreePainter extends CustomPainter {
     paintSmallTree(canvas, size);
   }
 
-  void _drawBackground(Canvas canvas, Size size) {
-    final paint = Paint();
-    final double totalHeight = size.height;
-
-    // 밤하늘
-    final nightSkyRect = Rect.fromLTWH(0, 0, size.width, totalHeight * 0.25);
-    paint.color = Color(0xFF001d3d);
-    canvas.drawRect(nightSkyRect, paint);
-
-    // 푸른 하늘
-    final blueSkyRect =
-        Rect.fromLTWH(0, totalHeight * 0.25, size.width, totalHeight * 0.25);
-    paint.color = Color(0xFF87CEEB);
-    canvas.drawRect(blueSkyRect, paint);
-
-    // 노을
-    final sunsetRect =
-        Rect.fromLTWH(0, totalHeight * 0.5, size.width, totalHeight * 0.25);
-    paint.color = Color(0xFFFF4500);
-    canvas.drawRect(sunsetRect, paint);
-
-    // 황금빛 들판
-    final goldenFieldRect =
-        Rect.fromLTWH(0, totalHeight * 0.75, size.width, totalHeight * 0.25);
-    paint.color = Color(0xFFFFD700);
-    canvas.drawRect(goldenFieldRect, paint);
-
-    // 경계 혼재 영역 (블렌딩)
-    final blendPaint = Paint();
-    for (double y = 0; y < totalHeight; y += 1) {
-      final blendRatio = (y % (totalHeight / 4)) / (totalHeight / 4);
-      if (y < totalHeight * 0.25) {
-        blendPaint.color =
-            Color.lerp(Color(0xFF001d3d), Color(0xFF87CEEB), blendRatio)!;
-      } else if (y < totalHeight * 0.5) {
-        blendPaint.color =
-            Color.lerp(Color(0xFF87CEEB), Color(0xFFFF4500), blendRatio)!;
-      } else if (y < totalHeight * 0.75) {
-        blendPaint.color =
-            Color.lerp(Color(0xFFFF4500), Color(0xFFFFD700), blendRatio)!;
-      }
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), blendPaint);
-    }
-  }
-
   void paintSmallTree(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.green
       ..strokeWidth = 12.0
       ..style = PaintingStyle.stroke;
 
-    final trunkHeight = size.height / 10;
-    final branchLength = size.width / 10;
+    final trunkHeight = 121.6;
 
     double currentBackgroundHeight = size.height - trunkHeight;
 
@@ -87,7 +41,7 @@ class TreePainter extends CustomPainter {
       final photoX = startX +
           (i % 2 == 0 ? -1 : 1) * size.width * 0.3 +
           (i % 2 == 0 ? 1 : -1) * 5;
-      final photoY = currentBackgroundHeight;
+      final photoY = currentBackgroundHeight + (i==0 ? 5 : 0);
 
       final image = images[i];
 
@@ -100,13 +54,34 @@ class TreePainter extends CustomPainter {
         height: 60.8 * 4,
       );
 
-      final imageRect = Rect.fromCenter(
+
+      final targetRect = Rect.fromCenter(
         center: Offset(photoX, photoY),
-        width: 80,
-        height: 80,
+        width: 16.2 *5,
+        height: 15.8 * 5,
       );
 
-      imageRects.add(imageRect);
+      // 원본 이미지의 비율을 계산합니다.
+      final double imageAspectRatio = image.width / image.height;
+
+      // 타겟 사각형의 비율을 계산합니다.
+      final double targetAspectRatio = targetRect.width / targetRect.height;
+
+      // 잘라낼 원본 이미지의 사각형을 계산합니다.
+      Rect sourceRect;
+      if (imageAspectRatio > targetAspectRatio) {
+        // 이미지가 더 넓은 경우, 좌우를 잘라냅니다.
+        final double cropWidth = image.height * targetAspectRatio;
+        final double left = (image.width - cropWidth) / 2;
+        sourceRect = Rect.fromLTWH(left, 0, cropWidth, image.height.toDouble());
+      } else {
+        // 이미지가 더 높은 경우, 위아래를 잘라냅니다.
+        final double cropHeight = image.width / targetAspectRatio;
+        final double top = (image.height - cropHeight) / 2;
+        sourceRect = Rect.fromLTWH(0, top, image.width.toDouble(), cropHeight);
+      }
+
+      imageRects.add(targetRect);
 
       canvas.drawImageRect(
         backgroundImage,
@@ -118,8 +93,8 @@ class TreePainter extends CustomPainter {
 
       canvas.drawImageRect(
         image,
-        Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
-        imageRect,
+        sourceRect,
+        targetRect,
         Paint(),
       );
     }
