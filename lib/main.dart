@@ -59,7 +59,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     super.initState();
 
     _controller = AnimationController(
-      duration: Duration(seconds: 1),
+      duration: Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
 
@@ -68,18 +68,18 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       curve: Curves.easeInOut,
     );
 
+    // 애니메이션으로 이미지 전환
+    Future.delayed(Duration(milliseconds: 1500), () {
+      setState(() {
+        _showFirstImage = !_showFirstImage;
+      });
+    });
+
     // 3초 후 메인 화면으로 전환
     Timer(Duration(seconds: 3), () {
       Navigator.of(context).pushReplacement(MaterialPageRoute(
         builder: (context) => HomeScreen(),
       ));
-    });
-
-    // 애니메이션으로 이미지 전환
-    Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        _showFirstImage = !_showFirstImage;
-      });
     });
   }
 
