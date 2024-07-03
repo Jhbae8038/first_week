@@ -92,6 +92,9 @@ flutter:
     - family: EF_Diary
       fonts:
         - asset: asset/fonts/EF_Diary(otf).otf
+    - family: oniip
+      fonts:
+        - asset: asset/fonts/oniip.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

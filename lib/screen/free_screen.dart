@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:kaist_summer_camp/component/custom_painter.dart';
+import 'package:kaist_summer_camp/const/text_theme.dart';
 import 'package:kaist_summer_camp/provider/memories_provider.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
@@ -29,6 +30,8 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
   String? _selectedImage;
   final ImagePicker _picker = ImagePicker();
   double scrollPosition = double.infinity;
+  DateTime? _selectedDate;
+
 
   @override
   void initState() {
@@ -50,6 +53,19 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
 
   void _updateScrollPosition() {
     scrollPosition = _scrollController.position.pixels;
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _selectedDate)
+      setState(() {
+        _selectedDate = picked;
+      });
   }
 
   void _showLargeImage(MemoryModel memory) {
@@ -95,7 +111,12 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                             ),
                             Spacer(flex: 1),
                             Text(Util.getFileDate(File(memory.imagePath)) ??
-                                'Date not available'),
+                                'Date not available',
+                                style: diaryTextStyle(
+                                  textSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                            ),
                             Spacer(flex: 1),
                             IconButton(
                               icon: Icon(Icons.delete),
@@ -124,12 +145,17 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: TextField(
+                            style: diaryTextStyle(
+                              textSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                             controller: _titleController,
                             decoration: InputDecoration(
                               hintText: '제목',
-                              hintStyle: TextStyle(
+                              hintStyle: diaryTextStyle(
+                                textSize: 16,
+                                color: Colors.grey,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
                               ),
                               border: UnderlineInputBorder(
                                 borderSide: BorderSide(
@@ -160,11 +186,14 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: TextField(
+                            style: diaryTextStyle(
+                              textSize: 14,
+                            ),
                             controller: _descriptionController,
                             decoration: InputDecoration(
                               hintText: '어떤 추억이 담겨 있나요?',
-                              hintStyle: TextStyle(
-                                fontSize: 14,
+                              hintStyle: diaryTextStyle(
+                                textSize: 14,
                                 color: Colors.grey.withOpacity(0.6),
                               ),
                               border: InputBorder.none,
@@ -176,12 +205,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                           ),
                         ),
                         SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Text('Save'),
-                        ),
+
                       ],
                     ),
                   ),
@@ -241,7 +265,33 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                                   },
                                 ),
                                 Spacer(flex: 1),
+                                Text(_selectedImage!=null ? Util.getFileDate(File(_selectedImage!)) :
+                                    'Date not available',
+                                  style: diaryTextStyle(
+                                    textSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                                 Spacer(flex: 1),
+                                IconButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    if (_selectedImage == null) {
+                                      return;
+                                    }
+                                    ref
+                                        .read(memoryProvider.notifier)
+                                        .addMemory(MemoryModel(
+                                      imagePath: _selectedImage!,
+                                      title: _titleController.text,
+                                      description: _descriptionController.text,
+                                      date: DateTime.now(),
+                                    ));
+
+                                    // Save the memory here if necessary
+                                  },
+                                  icon: Icon(Icons.check),
+                                ),
                               ],
                             ),
                             if (_selectedImage != null)
@@ -259,25 +309,39 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                                 ),
                               ),
                             if (_selectedImage == null)
-                              ElevatedButton(
-                                onPressed: () async {
+                              GestureDetector(
+                                onTap: () async {
                                   final pickedFile = await _picker.pickImage(
                                       source: ImageSource.gallery);
-
                                   _selectedImage = pickedFile!.path;
                                   setState(() {});
                                 },
-                                child: Text('사진 추가'),
+                                child: Container(
+                                  width: double.infinity,
+                                  height: 300,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.withOpacity(0.2),
+                                  ),
+                                  child: Center(
+                                    child: Icon(Icons.add_a_photo_outlined,color: Colors.grey,),
+                                  ),
+
+                                ),
                               ),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: TextField(
+                                style: diaryTextStyle(
+                                  textSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
                                 controller: _titleController,
                                 decoration: InputDecoration(
                                   hintText: '제목',
-                                  hintStyle: TextStyle(
+                                  hintStyle: diaryTextStyle(
                                     fontWeight: FontWeight.bold,
-                                    fontSize: 16,
+                                    textSize: 16,
+                                    color: Colors.grey,
                                   ),
                                   border: UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -305,12 +369,15 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: TextField(
+                                style: diaryTextStyle(
+                                  textSize: 14,
+                                ),
                                 controller: _descriptionController,
                                 focusNode: _descriptionFocusNode,
                                 decoration: InputDecoration(
                                   hintText: '어떤 추억이 담겨 있나요?',
-                                  hintStyle: TextStyle(
-                                    fontSize: 14,
+                                  hintStyle: diaryTextStyle(
+                                    textSize: 14,
                                     color: Colors.grey.withOpacity(0.6),
                                   ),
                                   border: InputBorder.none,
@@ -319,26 +386,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                               ),
                             ),
                             SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                if (_selectedImage == null) {
-                                  return;
-                                }
 
-                                ref
-                                    .read(memoryProvider.notifier)
-                                    .addMemory(MemoryModel(
-                                  imagePath: _selectedImage!,
-                                  title: _titleController.text,
-                                  description: _descriptionController.text,
-                                  date: DateTime.now(),
-                                ));
-
-                                // Save the memory here if necessary
-                              },
-                              child: Text('Save'),
-                            ),
                           ],
                         ),
                       ),
