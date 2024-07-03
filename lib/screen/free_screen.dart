@@ -275,16 +275,29 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                                   },
                                 ),
                                 Spacer(flex: 1),
-                                Text(
-                                  _selectedImage != null
-                                      ? Util.getFileDate(File(_selectedImage!))
-                                      : '',
-                                  style: diaryTextStyle(
-                                    textSize: 12,
-                                    fontWeight: FontWeight.bold,
+                                GestureDetector(
+                                  onTap: () {
+                                    showCupertinoDatePicker(
+                                        context: context,
+                                        initialDateTime: DateTime.now(),
+                                        onDateChanged: (DateTime date) {
+                                          setState(() {
+                                            _selectedDate = date;
+                                          });
+                                        });
+                                  },
+                                  child: Text(
+                                    _selectedDate == null
+                                        ? DateFormat('yyyy년 M월 d일 (E)', 'ko_KR')
+                                        .format(DateTime.now())
+                                        : DateFormat('yyyy년 M월 d일 (E)', 'ko_KR')
+                                        .format(_selectedDate!),
+                                    style: diaryTextStyle(
+                                      textSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-
                                 Spacer(flex: 1),
                                 IconButton(
                                   onPressed: () {
@@ -299,7 +312,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                                           title: _titleController.text,
                                           description:
                                               _descriptionController.text,
-                                          date: DateTime.now(),
+                                          date: _selectedDate!,
                                         ));
 
                                     // Save the memory here if necessary
