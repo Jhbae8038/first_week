@@ -61,7 +61,7 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
         ],
       ),
       body: images.isEmpty//이미지가 없을 경우
-          ? Center(child: Text('No images selected.'))
+          ? Center(child: Text('갤러리에 사진을 올려주세요',style: diaryTextStyle(textSize: 16.0),))
           : GridView.builder(//이미지가 있을 경우
         key: _pageStorageKey,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(//그리드뷰 설정
