@@ -463,6 +463,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                               child: Text(
                                 'Since\n ${DateFormat('yyyy.MM.dd').format(memories.first.date)}',
                                 textAlign: TextAlign.center,
+                                style: gbsTextStyle(textSize: 16.0),
                               ),
                             ),
                           ),
