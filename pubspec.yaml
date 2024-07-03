@@ -57,6 +57,7 @@ dev_dependencies:
   build_runner: ^2.1.4
   exif: ^3.3.0
   intl: ^0.17.0
+  flutter_native_splash: ^2.0.5+1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -64,7 +65,13 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
-
+flutter_native_splash:
+  color: "#000000"
+  image:
+    - asset/splash.jpg
+    - asset/splash2.jpg
+  android: true
+  ios: true
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -87,6 +94,8 @@ flutter:
     - asset/dg_right.png
     - asset/lg_left.png
     - asset/lg_right.png
+    - asset/splash.jpg
+    - asset/splash2.jpg
 
   fonts:
     - family: EF_Diary
