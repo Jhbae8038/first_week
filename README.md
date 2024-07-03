@@ -21,7 +21,7 @@
 ![추억2 화면](images/diary_full.png)
 
 ## 동영상 데모
-[프로젝트 데모 영상](https://www.youtube.com/watch?v=your_demo_video_link)
+[프로젝트 데모 영상] 노션
 
 ## APK 파일
-[APK 다운로드](https://drive.google.com/file/d/your_apk_file_link/view?usp=sharing)
+[APK 다운로드](https://drive.google.com/file/d/1sOjk_Z6vY57Y29_Ywq_EHax0X3oY5kkY/view?usp=share_link)
