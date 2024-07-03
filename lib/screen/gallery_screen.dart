@@ -1,6 +1,7 @@
 //gallery_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kaist_summer_camp/const/text_theme.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
@@ -41,7 +42,8 @@ class _GalleryScreenState extends ConsumerState<GalleryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Gallery'),
+        title: Text('Gallery',style: diaryTextStyle(textSize: 20.0,fontWeight: FontWeight.bold,),),
+        centerTitle: true,
         actions: [
           IconButton(
             icon: Icon(Icons.add),

@@ -267,7 +267,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                                 ),
                                 Spacer(flex: 1),
                                 Text(_selectedImage!=null ? Util.getFileDate(File(_selectedImage!)) :
-                                    'Date not available',
+                                    '',
                                   style: diaryTextStyle(
                                     textSize: 12,
                                     fontWeight: FontWeight.bold,
@@ -410,7 +410,9 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text('Memories'),
+
+          title: Text('Memories',style: diaryTextStyle(textSize: 20.0,fontWeight: FontWeight.bold,)),
+          centerTitle: true,
           actions: [
             IconButton(
               icon: Icon(Icons.add),
@@ -458,7 +460,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                                 .size
                                 .height * 0.15,
                             child: memories.isEmpty
-                                ? Center(child: Text('No memories yet.'))
+                                ? Center(child: Text('아직 저장된 추억이 없어요',style: diaryTextStyle(textSize: 16.0),))
                                 : Center(
                               child: Text(
                                 'Since\n ${DateFormat('yyyy.MM.dd').format(memories.first.date)}',

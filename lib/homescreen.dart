@@ -2,6 +2,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:kaist_summer_camp/const/text_theme.dart';
 import 'package:kaist_summer_camp/screen/free_screen.dart';
 import 'package:kaist_summer_camp/screen/gallery_screen.dart';
 import 'package:kaist_summer_camp/screen/phonebook_screen.dart';
@@ -65,14 +66,16 @@ class _HomeScreenState extends State<HomeScreen>
             label: 'CONTACTS',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.saved_search),
+            icon: Icon(Icons.photo_album_outlined),
             label: 'GALLERY',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.info_outlined),
-            label: 'Free',
+            icon: Icon(Icons.edit),
+            label: 'Memories',
           ),
         ],
+        selectedLabelStyle: diaryTextStyle(textSize: 10.0),
+        unselectedLabelStyle: diaryTextStyle(textSize: 8.0),
       ),
     );
   }

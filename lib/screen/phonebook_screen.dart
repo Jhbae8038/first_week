@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:kaist_summer_camp/component/contact_recentcall_component.dart';
 import 'package:kaist_summer_camp/component/contact_scroll_component.dart';
+import 'package:kaist_summer_camp/const/text_theme.dart';
 import 'package:kaist_summer_camp/model/user_model.dart';
 import 'package:kaist_summer_camp/provider/user_provider.dart';
 import 'package:kaist_summer_camp/screen/contact_detail_screen.dart';
@@ -11,6 +12,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:permission_handler/permission_handler.dart';
+
 
 import '../model/contact_model.dart';
 import '../util/util.dart';
@@ -60,11 +62,10 @@ class _PhoneBookScreenState extends ConsumerState<PhoneBookScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             'Contact',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
+            style: diaryTextStyle(textSize: 20.0,
+            fontWeight: FontWeight.bold,
             ),
           ),
           centerTitle: true,
