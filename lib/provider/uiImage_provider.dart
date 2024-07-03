@@ -18,14 +18,14 @@ final uiImageProvider = FutureProvider<List<ui.Image>>((ref) {
 final uiTreeImageProvider = FutureProvider<List<ui.Image>>((ref) {
   final assets = [
     'asset/ground_left.png',
+    'asset/brown_right.png',
+    'asset/brown_left.png',
     'asset/dg_right.png',
     'asset/dg_left.png',
     'asset/g_right.png',
     'asset/g_left.png',
     'asset/lg_right.png',
     'asset/lg_left.png',
-    'asset/brown_right.png',
-    'asset/brown_left.png',
   ];
 
   final List<Future<ui.Image>> futures = assets.map((asset) => _loadImage(asset)).toList();

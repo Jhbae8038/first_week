@@ -95,6 +95,30 @@ flutter:
     - family: oniip
       fonts:
         - asset: asset/fonts/oniip.ttf
+    - family: PlaywriteGBS
+      fonts:
+        - asset: asset/fonts/PlaywriteGBS-ExtraLight.ttf
+          weight: 200 # ExtraLight weight
+        - asset: asset/fonts/PlaywriteGBS-ExtraLightItalic.ttf
+          weight: 200 # ExtraLight weight
+          style: italic
+        - asset: asset/fonts/PlaywriteGBS-Italic.ttf
+          weight: 400 # Regular weight
+          style: italic
+        - asset: asset/fonts/PlaywriteGBS-Light.ttf
+          weight: 300 # Light weight
+        - asset: asset/fonts/PlaywriteGBS-LightItalic.ttf
+          weight: 300 # Light weight
+          style: italic
+        - asset: asset/fonts/PlaywriteGBS-Regular.ttf
+          weight: 400 # Regular weight
+        - asset: asset/fonts/PlaywriteGBS-ExtraLight.ttf
+          weight: 200 # ExtraLight weight (duplicate, you might want to remove this line)
+        - asset: asset/fonts/PlaywriteGBS-Thin.ttf
+          weight: 100 # Thin weight
+        - asset: asset/fonts/PlaywriteGBS-ThinItalic.ttf
+          weight: 100 # Thin weight
+          style: italic
 
   # To add assets to your application, add an assets section, like this:
   # assets:
