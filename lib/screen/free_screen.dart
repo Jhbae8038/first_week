@@ -59,7 +59,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
   void _showLargeImage(MemoryModel memory) {
     _titleController.text = memory.title;
     _descriptionController.text = memory.description;
-    _selectedDate = null;
+    _selectedDate = memory.date;
 
     showModalBottomSheet(
       context: context,
@@ -111,9 +111,9 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                                         onDateChanged: (DateTime date) {
                                           setState(() {
                                             _selectedDate = date;
+                                            memory.date = _selectedDate!;
                                           });
                                         });
-                                    memory.date = _selectedDate ?? DateTime.now();
                                   },
                                   child: Text(
                                     _selectedDate == null
@@ -457,6 +457,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
             IconButton(
               icon: Icon(Icons.add),
               onPressed: () {
+                _selectedDate = null;
                 _showDiaryEditor();
               },
             ),
@@ -483,6 +484,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                           child: CustomPaint(
                             painter: TreePainter(memories, data,
                                 onImageTap: (index) {
+                              _selectedDate = null;
                               _showLargeImage(memories[index]);
                               ref.read(memoryProvider.notifier).saveMemory();
                             }, treeImages: uiBackground),
