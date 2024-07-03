@@ -5,7 +5,7 @@ void showCupertinoDatePicker({required BuildContext context, required ValueChang
     context: context,
     builder: (BuildContext context) {
       return Container(
-        height: 250,
+        height: 225,
         color: CupertinoColors.white,
         child: Column(
           children: [
@@ -16,12 +16,6 @@ void showCupertinoDatePicker({required BuildContext context, required ValueChang
                 mode: CupertinoDatePickerMode.date,
                 onDateTimeChanged: onDateChanged,
               ),
-            ),
-            CupertinoButton(
-              child: Text('확인'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
             ),
           ],
         ),
