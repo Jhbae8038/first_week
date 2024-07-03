@@ -94,6 +94,7 @@ class _ContactScrollComponentState extends State<ContactScrollComponent> {
                 child: Text(
                   firstLetter,
                   style: TextStyle(
+                    fontSize: 12.0,
                     color: Colors.grey.shade700,
                     fontWeight: FontWeight.bold,
                   ),
@@ -114,6 +115,7 @@ class _ContactScrollComponentState extends State<ContactScrollComponent> {
                 child: Text(
                   firstLetter,
                   style: TextStyle(
+                    fontSize: 12.0,
                     color: Colors.grey.shade700,
                     fontWeight: FontWeight.bold,
                   ),

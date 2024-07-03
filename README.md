@@ -14,9 +14,11 @@
 - **팀원2**: 배준형 (email@example.com)
 
 ## 미리보기
-![연락처 화면](images/contact.png)
-![갤러리 화면](images/gallery.png)
-![추억 화면](images/diary.png)
+![연락처 화면](images/contact_final.png)
+![연락처2 화면](images/contact_detail.png)
+![갤러리 화면](images/gallery_empty.png)
+![추억 화면](images/diary_empty.png)
+![추억2 화면](images/diary_full.png)
 
 ## 동영상 데모
 [프로젝트 데모 영상](https://www.youtube.com/watch?v=your_demo_video_link)

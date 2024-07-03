@@ -108,6 +108,7 @@ class Util {
         break;
       }
 
+      print(callLog.name);
       if (callLog.name != null && callLog.name!.isNotEmpty) {
         if (recentCallContacts.any((contact) => contact.name == callLog.name)) continue;
         recentCallContacts.add(allContacts.firstWhere((contact) => contact.name == callLog.name));

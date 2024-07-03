@@ -471,6 +471,15 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                 _scrollController
                     .jumpTo(_scrollController.position.maxScrollExtent);
               }
+
+              if(memories.isEmpty){
+                return Center(
+                    child: Text(
+                      '아직 저장된 추억이 없어요',
+                      style: diaryTextStyle(textSize: 16.0),
+                    ));
+              }
+
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -494,13 +503,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                         SizedBox(height: 20),
                         Container(
                           height: MediaQuery.of(context).size.height * 0.15,
-                          child: memories.isEmpty
-                              ? Center(
-                                  child: Text(
-                                  '아직 저장된 추억이 없어요',
-                                  style: diaryTextStyle(textSize: 16.0),
-                                ))
-                              : Center(
+                          child: Center(
                                   child: Text(
                                     'Since\n ${DateFormat('yyyy.MM.dd').format(memories.first.date)}',
                                     textAlign: TextAlign.center,
