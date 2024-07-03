@@ -17,7 +17,7 @@ final uiImageProvider = FutureProvider<List<ui.Image>>((ref) {
 
 final uiTreeImageProvider = FutureProvider<List<ui.Image>>((ref) {
   final assets = [
-    'asset/bottom.png',
+    'asset/ground_left.png',
     'asset/dg_right.png',
     'asset/dg_left.png',
     'asset/g_right.png',
