@@ -113,6 +113,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                                             _selectedDate = date;
                                           });
                                         });
+                                    memory.date = _selectedDate ?? DateTime.now();
                                   },
                                   child: Text(
                                     _selectedDate == null
@@ -312,7 +313,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                                           title: _titleController.text,
                                           description:
                                               _descriptionController.text,
-                                          date: _selectedDate!,
+                                          date: _selectedDate ?? DateTime.now(),
                                         ));
 
                                     // Save the memory here if necessary
