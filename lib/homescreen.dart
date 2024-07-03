@@ -71,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.edit),
-            label: 'Memories',
+            label: 'MEMORIES',
           ),
         ],
         selectedLabelStyle: diaryTextStyle(textSize: 10.0),
