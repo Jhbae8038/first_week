@@ -45,8 +45,10 @@ class TreePainter extends CustomPainter {
 
       final image = images[i];
 
-      var backgroundImage = treeImages[i % 8];
-      if (i%8 ==0 && i !=0) backgroundImage = treeImages[8];
+      var backgroundImage;
+      if (i==0) backgroundImage = treeImages[0];
+      else if ((i ~/ 5)%4 ==0) backgroundImage = treeImages[7 + (i%2)];
+      else backgroundImage = treeImages[((i ~/ 5)%4)*2 -1 +(i%2)];
 
         final backgroundRect = Rect.fromCenter(
         center: Offset(backgroundX, backgroundY),
