@@ -1,4 +1,4 @@
-# 프로젝트 이름
+# MaDiary
 
 **프로젝트 설명**
 한 줄 소개: 이 프로젝트는 Flutter를 사용하여 제작한 연락처, 갤러리, 추억 일기 애플리 케이션 입니다.  
@@ -11,7 +11,7 @@
 
 ## 팀원
 - **팀원1**: 이시준 (mac520@naver.com)
-- **팀원2**: 배준형 (email@example.com)
+- **팀원2**: 배준형 (jhbae8038@gmail.com)
 
 ## 미리보기
 ![연락처 화면](images/contact_final.png)
