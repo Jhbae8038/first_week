@@ -8,6 +8,7 @@ import 'package:kaist_summer_camp/component/custom_painter.dart';
 import 'package:kaist_summer_camp/provider/memories_provider.dart';
 import 'dart:async';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:kaist_summer_camp/provider/uiImage_provider.dart';
 import 'package:kaist_summer_camp/util/util.dart';
 
@@ -357,7 +358,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
   Widget build(BuildContext context) {
     final memories = ref.watch(memoryProvider);
     final uiImages = ref.watch(uiImageProvider);
-    final uiBackground = ref.watch(uiTreeImageProvider);
+    final uiBackground = ref.read(uiTreeImageProvider);
 
     return Scaffold(
         appBar: AppBar(
@@ -392,7 +393,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                                 .of(context)
                                 .size
                                 .width,
-                            height: memories.length * 100.0 + 100.0,
+                            height: memories.length * 60.0 + 60.8*4,
                             child: CustomPaint(
                               painter:
                               TreePainter(memories, data, onImageTap: (index) {
@@ -412,7 +413,7 @@ class _FreeScreenState extends ConsumerState<FreeScreen> {
                                 ? Center(child: Text('No memories yet.'))
                                 : Center(
                               child: Text(
-                                'Since\n xxxx.xx.xx',
+                                'Since\n ${DateFormat('yyyy.MM.dd').format(memories.first.date)}',
                                 textAlign: TextAlign.center,
                               ),
                             ),
